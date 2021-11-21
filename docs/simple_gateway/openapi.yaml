@@ -1,0 +1,85 @@
+openapi: 3.0.1
+servers:
+  - description: Local
+    url: http://127.0.0.1:8080/api/v1
+info:
+  title: Lim Simple API
+  version: 0.1.0
+  description: >
+    API для ДЗ №1 web-приложения Lim
+tags:
+  - name: Простые методы
+paths:
+  /sort:
+    post:
+      tags:
+        - Простые методы
+      summary: Метод сортировки
+      description: Метод получает список строк, и возвращает отсортированный список строк
+      operationId: sort
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Arr"
+      responses:
+        200:
+          $ref: "#/components/responses/ArrResponse"
+        400:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /uniq:
+    post:
+      tags:
+        - Простые методы
+      summary: Метод исключения дубликатов
+      description: Метод получает список строк, и возвращает отфильтрованный список уникалоьных строк
+      operationId: uniq
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Arr"
+      responses:
+        200:
+          $ref: "#/components/responses/ArrResponse"
+        400:
+          $ref: "#/components/responses/ErrorResponse"
+
+components:
+
+  responses:
+    ErrorResponse:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    ArrResponse:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Arr"
+
+  schemas:
+    Error:
+      description: Ошибка
+      type: string
+      example: Ошибка
+
+    Arr:
+      description: Список строк
+      type: object
+      required:
+        - array
+      properties:
+        array:
+          description: список строк
+          type: array
+          items:
+            type: string
+            example: Пушкин
