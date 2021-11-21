@@ -4,16 +4,22 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="95a1f4e9-9386-446a-8107-7c391758f15d" name="Changes" comment="add makefile">
-      <change afterPath="$PROJECT_DIR$/.idea/lim-ext2.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/simple_gateway/config.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/simple_gateway/handlers.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/simple_gateway/main.go" afterDir="false" />
+    <list default="true" id="95a1f4e9-9386-446a-8107-7c391758f15d" name="Changes" comment="generate skeleton">
+      <change afterPath="$PROJECT_DIR$/entrypoint/simple_gateway/main.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/http/server.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/logger/logger.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/openapi/openapi.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/testing/testing.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/utils/utils.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/simple_gateway/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReadMe.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/simple_gateway/openapi.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/simple_gateway/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/doc/simple_gateway/openapi.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/simple_gateway/handlers.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/simple_gateway/config/config.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/simple_gateway/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/simple_gateway/handlers.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +71,12 @@
     <property name="last_opened_file_path" value="$USER_HOME$" />
     <property name="settings.editor.selected.configurable" value="go.sdk" />
   </component>
-  <component name="RunManager" selected="Makefile Target.init">
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/service/simple_gateway/config" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build git.redmadrobot.com/internship/backend/lim-ext/entrypoint/simple_gateway">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="lim-ext2" />
       <working_directory value="$PROJECT_DIR$" />
@@ -73,6 +84,33 @@
       <kind value="FILE" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build git.redmadrobot.com/internship/backend/lim-ext/entrypoint/simple_gateway" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="lim-ext2" />
+      <working_directory value="$PROJECT_DIR$" />
+      <envs>
+        <env name="PREFIX" value="LIM" />
+        <env name="LIM_TEST" value="&quot;true&quot;" />
+        <env name="LIM_SIMPLE_GW_SERVER_ENVIRONMENT" value="dev" />
+        <env name="LIM_SIMPLE_GW_SERVER_SCHEME" value="http" />
+        <env name="LIM_SIMPLE_GW_SERVER_HOST" value="localhost" />
+        <env name="LIM_SIMPLE_GW_SERVER_PORT" value="8042" />
+      </envs>
+      <EXTENSION ID="net.ashald.envfile">
+        <option name="IS_ENABLED" value="false" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+        </ENTRIES>
+      </EXTENSION>
+      <kind value="PACKAGE" />
+      <package value="git.redmadrobot.com/internship/backend/lim-ext/entrypoint/simple_gateway" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/entrypoint/simple_gateway/main.go" />
       <method v="2" />
     </configuration>
     <configuration name="Unnamed" type="GoRemoteDebugConfigurationType" factoryName="Go Remote" nameIsGenerated="true">
@@ -84,17 +122,6 @@
       <working_directory value="$PROJECT_DIR$" />
       <go_parameters value="-i" />
       <kind value="DIRECTORY" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <method v="2" />
-    </configuration>
-    <configuration name="go test git.redmadrobot.com/internship/backend/lim-ext/pkg/auth/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="lim-ext2" />
-      <working_directory value="$PROJECT_DIR$/pkg/auth/test" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="git.redmadrobot.com/internship/backend/lim-ext/pkg/auth/test" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
@@ -163,8 +190,8 @@
     </configuration>
     <list>
       <item itemvalue="Docker.Unnamed" />
+      <item itemvalue="Go Build.go build git.redmadrobot.com/internship/backend/lim-ext/entrypoint/simple_gateway" />
       <item itemvalue="Go Remote.Unnamed" />
-      <item itemvalue="Go Test.go test git.redmadrobot.com/internship/backend/lim-ext/pkg/auth/test" />
       <item itemvalue="Go Test.go test git.redmadrobot.com/internship/backend/lim/tests" />
       <item itemvalue="Makefile Target.gen" />
       <item itemvalue="Makefile Target.clean" />
@@ -172,11 +199,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build git.redmadrobot.com/internship/backend/lim-ext/entrypoint/simple_gateway" />
         <item itemvalue="Makefile Target.init" />
         <item itemvalue="Makefile Target.gen" />
         <item itemvalue="Makefile Target.clean" />
         <item itemvalue="Go Test.go test git.redmadrobot.com/internship/backend/lim/tests" />
-        <item itemvalue="Go Test.go test git.redmadrobot.com/internship/backend/lim-ext/pkg/auth/test" />
       </list>
     </recent_temporary>
   </component>
@@ -202,7 +229,8 @@
     <MESSAGE value="докер" />
     <MESSAGE value="init" />
     <MESSAGE value="add makefile" />
-    <option name="LAST_COMMIT_MESSAGE" value="add makefile" />
+    <MESSAGE value="generate skeleton" />
+    <option name="LAST_COMMIT_MESSAGE" value="generate skeleton" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>

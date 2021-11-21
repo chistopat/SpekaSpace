@@ -1,10 +1,12 @@
 SERVICE = $(target)
 CODEGEN = github.com/deepmap/oapi-codegen/cmd/oapi-codegen
-SERVICE_PATH = ./services/$(SERVICE)
+SERVICE_PATH = ./service/$(SERVICE)
 GENERATED_PATH = $(SERVICE_PATH)/generated
-DOCS_PATH = ./docs/$(SERVICE)
-APIDOC = ./docs/$(SERVICE)/openapi.yaml
+DOC_PATH = ./doc/$(SERVICE)
+APIDOC = $(DOC_PATH)/openapi.yaml
 TESTS_PATH = $(SERVICE_PATH)/tests
+ENTRYPOINT_PATH = ./entrypoint/$(SERVICE)
+PKG_PATH = ./pkg
 
 .PHONY: clean
 clean:
@@ -21,11 +23,15 @@ gen: clean generate
 
 .PHONY: gen
 init:
-	mkdir -p $(DOCS_PATH)
+	mkdir -p $(DOC_PATH)
 	mkdir -p $(SERVICE_PATH)
 	mkdir -p $(TESTS_PATH)
-	if [ ! -f "$(DOCS_PATH)/openapi.yaml" ]; then touch $(DOCS_PATH)/openapi.yaml; fi
-	if [ ! -f "$(SERVICE_PATH)" ]; then touch $(SERVICE_PATH)/main.go; fi
+	mkdir -p $(ENTRYPOINT_PATH)
+	mkdir -p $(PKG_PATH)
+	if [ ! -f "$(APIDOC)" ]; then touch $(APIDOC); fi
 	if [ ! -f "$(SERVICE_PATH)" ]; then touch $(SERVICE_PATH)/config.go; fi
 	if [ ! -f "$(SERVICE_PATH)" ]; then touch $(SERVICE_PATH)/handlers.go; fi
+	if [ ! -f "$(SERVICE_PATH)" ]; then touch $(SERVICE_PATH)/service.go; fi
+	if [ ! -f "$(ENTRYPOINT_PATH)/main.go" ]; then touch $(ENTRYPOINT_PATH)/main.go; fi
+
 	git add .
