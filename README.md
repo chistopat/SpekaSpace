@@ -64,3 +64,7 @@ make gen target=simple_gateway
 ```
 
 ---
+
+```
+go run ./entrypoint/simple_gateway/main.go
+```

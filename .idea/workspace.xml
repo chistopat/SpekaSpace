@@ -4,22 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="95a1f4e9-9386-446a-8107-7c391758f15d" name="Changes" comment="generate skeleton">
-      <change afterPath="$PROJECT_DIR$/entrypoint/simple_gateway/main.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/http/server.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/logger/logger.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/openapi/openapi.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/testing/testing.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/utils/utils.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/service/simple_gateway/service.go" afterDir="false" />
+    <list default="true" id="95a1f4e9-9386-446a-8107-7c391758f15d" name="Changes" comment="make buildable app">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/simple_gateway/openapi.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/simple_gateway/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/doc/simple_gateway/openapi.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/simple_gateway/handlers.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/simple_gateway/config/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/simple_gateway/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/simple_gateway/handlers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -230,7 +217,8 @@
     <MESSAGE value="init" />
     <MESSAGE value="add makefile" />
     <MESSAGE value="generate skeleton" />
-    <option name="LAST_COMMIT_MESSAGE" value="generate skeleton" />
+    <MESSAGE value="make buildable app" />
+    <option name="LAST_COMMIT_MESSAGE" value="make buildable app" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
