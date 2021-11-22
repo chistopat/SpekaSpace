@@ -6,6 +6,8 @@ DOC_PATH = ./doc/$(SERVICE)
 APIDOC = $(DOC_PATH)/openapi.yaml
 TESTS_PATH = $(SERVICE_PATH)/tests
 ENTRYPOINT_PATH = ./entrypoint/$(SERVICE)
+CONFIG_PATH = $(SERVICE_PATH)/config
+CONFIG_FILE = $(CONFIG_PATH)/config.go
 PKG_PATH = ./pkg
 
 .PHONY: clean
@@ -28,8 +30,9 @@ init:
 	mkdir -p $(TESTS_PATH)
 	mkdir -p $(ENTRYPOINT_PATH)
 	mkdir -p $(PKG_PATH)
+	mkdir -p $(CONFIG_PATH)
 	if [ ! -f "$(APIDOC)" ]; then touch $(APIDOC); fi
-	if [ ! -f "$(SERVICE_PATH)" ]; then touch $(SERVICE_PATH)/config.go; fi
+	if [ ! -f "$(CONFIG_FILE)" ]; then touch $(CONFIG_FILE); fi
 	if [ ! -f "$(SERVICE_PATH)" ]; then touch $(SERVICE_PATH)/handlers.go; fi
 	if [ ! -f "$(SERVICE_PATH)" ]; then touch $(SERVICE_PATH)/service.go; fi
 	if [ ! -f "$(ENTRYPOINT_PATH)/main.go" ]; then touch $(ENTRYPOINT_PATH)/main.go; fi
