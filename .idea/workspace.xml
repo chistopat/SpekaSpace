@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="95a1f4e9-9386-446a-8107-7c391758f15d" name="Changes" comment="make buildable app">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-    </list>
+    <list default="true" id="95a1f4e9-9386-446a-8107-7c391758f15d" name="Changes" comment="readme" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -218,7 +215,8 @@
     <MESSAGE value="add makefile" />
     <MESSAGE value="generate skeleton" />
     <MESSAGE value="make buildable app" />
-    <option name="LAST_COMMIT_MESSAGE" value="make buildable app" />
+    <MESSAGE value="readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="readme" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>

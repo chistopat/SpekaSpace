@@ -1,5 +1,4 @@
-.idea
-.vscode
+**.idea*
 
 **/generated
 .env*
