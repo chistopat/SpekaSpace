@@ -20,6 +20,9 @@ gen: clean generate
 _test:
 	go run github.com/lamoda/gonkey -tests tests -host localhost:8000
 
+run:
+	go run $(MAIN)
+
 build:
 	go build -o $(GOBIN) $(MAIN)
 
@@ -34,5 +37,5 @@ stop:
 
 restart: stop start
 
-test: start _test stop
+test: build start _test stop
 

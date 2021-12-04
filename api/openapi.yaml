@@ -121,10 +121,8 @@ components:
 
 
     Specification:
-      allOf:
-        - $ref: '#/components/schemas/SpecificationCreateBody'
-        - type: object
-        - description: Full Specification object
+      description: full body
+      type: object
 
       properties:
         created_at:
@@ -142,8 +140,16 @@ components:
           description: login of creator
           example: chistopat
         body:
-          type: object
-          additionalProperties: true
+          type: string
+          description: plain text specification body json
+        name:
+          type: string
+          description: 'unique specification name, used like id'
+          example: my_super_api
+        description:
+          type: string
+          description: comment
+          example: 'all about my super api'
 
     StatusField:
       type: string
