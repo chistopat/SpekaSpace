@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/testing"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/test"
 	"os"
 	"time"
 
@@ -33,7 +33,7 @@ func NewLogger(cfg *Config) (*zerolog.Logger, error) {
 		return nil, err
 	}
 	logger := zerolog.New(os.Stderr).Level(lvl).With().Caller().Timestamp().Logger()
-	if !testing.IsTest() {
+	if !test.IsTest() {
 		output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
 		logger = zerolog.New(output).Level(lvl).With().Caller().Timestamp().Logger()
 	}

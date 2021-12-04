@@ -3,12 +3,12 @@ package speka_space
 import (
 	"context"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/config"
-	generated2 "git.redmadrobot.com/internship/backend/lim-ext/src/generated"
+	gen "git.redmadrobot.com/internship/backend/lim-ext/src/generated"
 	"os"
 
 	"github.com/getkin/kin-openapi/openapi3filter"
 
-	chmw "github.com/deepmap/oapi-codegen/pkg/chi-middleware"
+	chimiddleware "github.com/deepmap/oapi-codegen/pkg/chi-middleware"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -18,7 +18,7 @@ import (
 
 const APIPrefix = "/api/v1"
 
-var _ generated2.ServerInterface = (*Server)(nil)
+var _ gen.ServerInterface = (*Server)(nil)
 
 type Server struct {
 	cfg    *config.SpekaSpaceConfig
@@ -32,8 +32,8 @@ func NewServer(logger *zerolog.Logger, cfg *config.SpekaSpaceConfig) Server {
 	}
 }
 
-func NewServerOptions(s *Server) generated2.ChiServerOptions {
-	swagger, err := generated2.GetSwagger()
+func NewServerOptions(s *Server) gen.ChiServerOptions {
+	swagger, err := gen.GetSwagger()
 	if err != nil {
 		s.logger.Error().Msg("Swagger fails")
 		os.Exit(1)
@@ -42,19 +42,19 @@ func NewServerOptions(s *Server) generated2.ChiServerOptions {
 
 	r := chi.NewRouter()
 
-	validatorOptions := &chmw.Options{}
+	validatorOptions := &chimiddleware.Options{}
 	validatorOptions.Options.AuthenticationFunc = func(c context.Context, input *openapi3filter.AuthenticationInput) error {
 		return nil
 	}
 
 	r.Use(httplog.RequestLogger(s.logger))
-	r.Use(chmw.OapiRequestValidatorWithOptions(swagger, validatorOptions))
+	r.Use(chimiddleware.OapiRequestValidatorWithOptions(swagger, validatorOptions))
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.SetHeader("Content-Type", "application/json"))
 
-	return generated2.ChiServerOptions{
+	return gen.ChiServerOptions{
 		BaseURL:    APIPrefix,
 		BaseRouter: r,
 	}

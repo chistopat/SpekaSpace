@@ -1,3 +1,5 @@
 **/generated
 .env*
 !.env.dist
+.idea
+.pid

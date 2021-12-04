@@ -1,0 +1,9 @@
+- name: get specification.
+  method: GET
+  path: /api/v1/specification/1
+
+  response:
+    200: |
+      {
+        "array": ["1", "2", "3"]
+      }

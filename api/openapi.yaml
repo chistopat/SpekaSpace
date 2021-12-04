@@ -22,7 +22,7 @@ tags:
   - name: Users
 
 paths:
-  /api/v1/specifications:
+  /specifications:
     get:
       tags:
         - Specifications
@@ -51,7 +51,7 @@ paths:
         400:
           $ref: "#/components/responses/ErrorResponse"
 
-  /api/v1/specification:
+  /specification:
     post:
       tags:
         - Specifications
@@ -73,7 +73,7 @@ paths:
         400:
           $ref: "#/components/responses/ErrorResponse"
 
-  /api/v1/specification/{id}:
+  /specification/{id}:
     get:
       tags:
         - Specifications
