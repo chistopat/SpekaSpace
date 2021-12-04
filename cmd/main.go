@@ -5,10 +5,9 @@ import (
 	"git.redmadrobot.com/internship/backend/lim-ext/src"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/config"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/generated"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/logger"
 	"net/http"
 	"os"
-
-	"git.redmadrobot.com/internship/backend/lim-ext/pkg/logger"
 
 	"github.com/rs/zerolog/log"
 )

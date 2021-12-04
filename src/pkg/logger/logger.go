@@ -1,12 +1,12 @@
 package logger
 
 import (
+	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/testing"
 	"os"
 	"time"
 
 	"github.com/spf13/viper"
 
-	"git.redmadrobot.com/internship/backend/lim-ext/pkg/testing"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )

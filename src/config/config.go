@@ -1,9 +1,9 @@
 package config
 
 import (
-	"git.redmadrobot.com/internship/backend/lim-ext/pkg/http"
-	"git.redmadrobot.com/internship/backend/lim-ext/pkg/logger"
-	"git.redmadrobot.com/internship/backend/lim-ext/pkg/utils"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/http"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/logger"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/utils"
 	"github.com/spf13/viper"
 )
 
