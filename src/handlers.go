@@ -1,7 +1,7 @@
 package speka_space
 
 import (
-	gen "git.redmadrobot.com/internship/backend/lim-ext/service/speka_space/generated"
+	gen "git.redmadrobot.com/internship/backend/lim-ext/src/generated"
 	"net/http"
 )
 

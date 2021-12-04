@@ -2,13 +2,12 @@ package speka_space
 
 import (
 	"context"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/config"
+	generated2 "git.redmadrobot.com/internship/backend/lim-ext/src/generated"
 	"os"
-
-	"git.redmadrobot.com/internship/backend/lim-ext/service/speka_space/config"
 
 	"github.com/getkin/kin-openapi/openapi3filter"
 
-	"git.redmadrobot.com/internship/backend/lim-ext/service/speka_space/generated"
 	chmw "github.com/deepmap/oapi-codegen/pkg/chi-middleware"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
@@ -19,7 +18,7 @@ import (
 
 const APIPrefix = "/api/v1"
 
-var _ generated.ServerInterface = (*Server)(nil)
+var _ generated2.ServerInterface = (*Server)(nil)
 
 type Server struct {
 	cfg    *config.SpekaSpaceConfig
@@ -33,8 +32,8 @@ func NewServer(logger *zerolog.Logger, cfg *config.SpekaSpaceConfig) Server {
 	}
 }
 
-func NewServerOptions(s *Server) generated.ChiServerOptions {
-	swagger, err := generated.GetSwagger()
+func NewServerOptions(s *Server) generated2.ChiServerOptions {
+	swagger, err := generated2.GetSwagger()
 	if err != nil {
 		s.logger.Error().Msg("Swagger fails")
 		os.Exit(1)
@@ -55,7 +54,7 @@ func NewServerOptions(s *Server) generated.ChiServerOptions {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.SetHeader("Content-Type", "application/json"))
 
-	return generated.ChiServerOptions{
+	return generated2.ChiServerOptions{
 		BaseURL:    APIPrefix,
 		BaseRouter: r,
 	}

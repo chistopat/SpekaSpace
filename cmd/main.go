@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
-	"git.redmadrobot.com/internship/backend/lim-ext/service/speka_space"
+	"git.redmadrobot.com/internship/backend/lim-ext/src"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/config"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/generated"
 	"net/http"
 	"os"
 
 	"git.redmadrobot.com/internship/backend/lim-ext/pkg/logger"
 
-	"git.redmadrobot.com/internship/backend/lim-ext/service/speka_space/config"
 	"github.com/rs/zerolog/log"
-
-	"git.redmadrobot.com/internship/backend/lim-ext/service/speka_space/generated"
 )
 
 func main() {
