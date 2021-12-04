@@ -8,6 +8,8 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3filter"
 
+	repo "git.redmadrobot.com/internship/backend/lim-ext/src/repository"
+
 	chimiddleware "github.com/deepmap/oapi-codegen/pkg/chi-middleware"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
@@ -23,10 +25,12 @@ var _ gen.ServerInterface = (*Server)(nil)
 type Server struct {
 	cfg    *config.SpekaSpaceConfig
 	logger zerolog.Logger
+	repo   repo.Repository
 }
 
-func NewServer(logger *zerolog.Logger, cfg *config.SpekaSpaceConfig) Server {
+func NewServer(repository repo.Repository, logger *zerolog.Logger, cfg *config.SpekaSpaceConfig) Server {
 	return Server{
+		repo:   repository,
 		cfg:    cfg,
 		logger: *logger,
 	}

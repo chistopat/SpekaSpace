@@ -5,7 +5,10 @@ import (
 	"git.redmadrobot.com/internship/backend/lim-ext/src"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/config"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/generated"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/db"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/logger"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/repository"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent"
 	"net/http"
 	"os"
 
@@ -25,20 +28,50 @@ func run() error {
 	address := fmt.Sprintf("%s:%s", serviceConfig.Server.Host, serviceConfig.Server.Port)
 
 	// Logging
-	serviceLogger, err := logger.NewLogger(serviceConfig.Logger)
+	journal, err := logger.NewLogger(serviceConfig.Logger)
 	if err != nil {
 		return err
 	}
 
-	server := speka_space.NewServer(serviceLogger, serviceConfig)
+	// Database
+	journal.Info().Msg(serviceConfig.DB.String())
+	err = db.Migrate(serviceConfig.DB, journal)
+	if err != nil {
+		journal.Error().Err(err).Msg("Failed migrate")
+
+		return err
+	}
+	dbDriver, err := db.GetDriver(serviceConfig.DB, journal)
+	if err != nil {
+		journal.Error().Err(err).Msg("Failed connect to DB")
+
+		return err
+	}
+	dbClient, err := speka_space.NewDBClient(dbDriver, journal, serviceConfig.DB.Debug)
+	if err != nil {
+		journal.Error().Err(err).Msg("Failed get ent client")
+
+		return err
+	}
+
+	defer func(dbClient *ent.Client) {
+		err := dbClient.Close()
+		if err != nil {
+			journal.Debug().Msg("DB connection closed")
+		}
+	}(dbClient)
+
+	repo := repository.NewRepository(dbClient, journal)
+
+	server := speka_space.NewServer(repo, journal, serviceConfig)
 	options := speka_space.NewServerOptions(&server)
 	router := generated.HandlerWithOptions(server, options)
 
-	serviceLogger.Info().Msgf("Start SpekaSpace server: %s", address)
+	journal.Info().Msgf("Start SpekaSpace server: %s", address)
 
 	err = http.ListenAndServe(address, router)
 	if err != nil {
-		serviceLogger.Error().Msg("Error serving http")
+		journal.Error().Msg("Error serving http")
 	}
 
 	return err

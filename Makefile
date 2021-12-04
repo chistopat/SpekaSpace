@@ -1,5 +1,6 @@
 CODEGEN = github.com/deepmap/oapi-codegen/cmd/oapi-codegen
 GENERATED_PATH = ./src/generated
+ENT_GENERATED_PATH = ./src/repository/ent
 APIDOC = ./api/openapi.yaml
 PID = ./.pid
 MAIN = ./cmd/main.go
@@ -14,6 +15,7 @@ generate:
 	go run $(CODEGEN) -package generated -generate types $(APIDOC) > $(GENERATED_PATH)/types.gen.go
 	go run $(CODEGEN) -package generated -generate chi-server $(APIDOC) > $(GENERATED_PATH)/server.gen.go
 	go run $(CODEGEN) -package generated -generate spec $(APIDOC) > $(GENERATED_PATH)/spec.gen.go
+	go run -mod=mod entgo.io/ent/cmd/ent generate ./src/repository/schema --target=$(ENT_GENERATED_PATH)
 
 gen: clean generate
 
@@ -35,7 +37,7 @@ stop:
 	@-kill `cat $(PID)` || true
 	@-rm $(PID)
 
-restart: stop start
+restart: stop build start
 
 test: build start _test stop
 
