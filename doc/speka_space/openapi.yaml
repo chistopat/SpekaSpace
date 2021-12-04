@@ -1,0 +1,178 @@
+openapi: 3.0.3
+info:
+  title: спека.space
+  description: Сервис для хранения, проектирования и обсуждения OpenApi спецификаций
+  version: 1.0.0
+  contact:
+    name: Yegor Chisyakov
+    email: chistopat@gmail.com
+
+servers:
+  - url: 'http://localhost:8080'
+    description: local
+  - url: 'http://test'
+    description: test
+  - url: 'http://prod'
+    description: prod
+
+tags:
+  - name: Workspaces
+  - name: Specifications
+  - name: Comments
+  - name: Users
+
+paths:
+  /api/v1/specifications:
+    get:
+      tags:
+        - Specifications
+      summary: Retrieve scpecifications
+      operationId: RetrieveSpecifications
+      parameters:
+        - name: status
+          in: query
+          description: 'filter by status'
+          required: false
+          schema:
+            type: string
+        - name: author
+          in: query
+          description: 'filter by author'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Specifications"
+        400:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /api/v1/specification:
+    post:
+      tags:
+        - Specifications
+      summary: Create new specification
+      operationId: CreateSpecification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpecificationCreateBody"
+      responses:
+        201:
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Specification"
+        400:
+          $ref: "#/components/responses/ErrorResponse"
+
+  /api/v1/specification/{id}:
+    get:
+      tags:
+        - Specifications
+      summary: Get specification by id
+      operationId: ReadSpecification
+      parameters:
+        - name: id
+          in: path
+          description: 'The specification id that needs to be fetched.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Specification"
+        404:
+          $ref: "#/components/responses/ErrorResponse"
+
+
+components:
+  responses:
+    ErrorResponse:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    SpecificationCreateBody:
+      description: fields set for create specification
+      type: object
+      properties:
+        name:
+          type: string
+          description: 'unique specification name, used like id'
+          example: my_super_api
+        description:
+          type: string
+          description: comment
+          example: 'all about my super api'
+
+
+    Specification:
+      allOf:
+        - $ref: '#/components/schemas/SpecificationCreateBody'
+        - type: object
+        - description: Full Specification object
+
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          example: '2021-10-11T20:10:01Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2021-10-11T20:10:01Z'
+        status:
+          $ref: '#/components/schemas/StatusField'
+        author:
+          type: string
+          description: login of creator
+          example: chistopat
+        body:
+          type: object
+          additionalProperties: true
+
+    StatusField:
+      type: string
+      enum:
+        - DRAFT
+        - NEW
+        - NEED_REVIEW
+        - ON_REVIEW
+        - CHANGES_REQUESTED
+        - APPROUVED
+        - REJECTED
+        - ARCHIVED
+      description: status uses for collaboration processes
+      default: DRAFT
+      example: NEW
+
+    Specifications:
+      type: array
+      items:
+        $ref: "#/components/schemas/Specification"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+            - INVALID_REQUEST
+            - NOT_FOUND
+        message:
+          type: string
+          example: 'required fields not found'

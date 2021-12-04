@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
+	"git.redmadrobot.com/internship/backend/lim-ext/service/speka_space"
 	"net/http"
 	"os"
 
 	"git.redmadrobot.com/internship/backend/lim-ext/pkg/logger"
-	"git.redmadrobot.com/internship/backend/lim-ext/service/simple_gateway"
 
-	"git.redmadrobot.com/internship/backend/lim-ext/service/simple_gateway/config"
+	"git.redmadrobot.com/internship/backend/lim-ext/service/speka_space/config"
 	"github.com/rs/zerolog/log"
 
-	"git.redmadrobot.com/internship/backend/lim-ext/service/simple_gateway/generated"
+	"git.redmadrobot.com/internship/backend/lim-ext/service/speka_space/generated"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 
 func run() error {
 	// Configuration
-	serviceConfig := config.NewSimpleGwServiceConfig()
+	serviceConfig := config.NewSpekaSpaceServiceConfig()
 	address := fmt.Sprintf("%s:%s", serviceConfig.Server.Host, serviceConfig.Server.Port)
 
 	// Logging
@@ -32,11 +32,11 @@ func run() error {
 		return err
 	}
 
-	server := simple_gateway.NewServer(serviceLogger, serviceConfig)
-	options := simple_gateway.NewServerOptions(&server)
+	server := speka_space.NewServer(serviceLogger, serviceConfig)
+	options := speka_space.NewServerOptions(&server)
 	router := generated.HandlerWithOptions(server, options)
 
-	serviceLogger.Info().Msgf("Start Simple GateWay server: %s", address)
+	serviceLogger.Info().Msgf("Start SpekaSpace server: %s", address)
 
 	err = http.ListenAndServe(address, router)
 	if err != nil {

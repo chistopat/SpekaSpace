@@ -1,14 +1,14 @@
-package simple_gateway
+package speka_space
 
 import (
 	"context"
 	"os"
 
-	"git.redmadrobot.com/internship/backend/lim-ext/service/simple_gateway/config"
+	"git.redmadrobot.com/internship/backend/lim-ext/service/speka_space/config"
 
 	"github.com/getkin/kin-openapi/openapi3filter"
 
-	"git.redmadrobot.com/internship/backend/lim-ext/service/simple_gateway/generated"
+	"git.redmadrobot.com/internship/backend/lim-ext/service/speka_space/generated"
 	chmw "github.com/deepmap/oapi-codegen/pkg/chi-middleware"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
@@ -22,11 +22,11 @@ const APIPrefix = "/api/v1"
 var _ generated.ServerInterface = (*Server)(nil)
 
 type Server struct {
-	cfg    *config.SimpleGWConfig
+	cfg    *config.SpekaSpaceConfig
 	logger zerolog.Logger
 }
 
-func NewServer(logger *zerolog.Logger, cfg *config.SimpleGWConfig) Server {
+func NewServer(logger *zerolog.Logger, cfg *config.SpekaSpaceConfig) Server {
 	return Server{
 		cfg:    cfg,
 		logger: *logger,
@@ -39,15 +39,12 @@ func NewServerOptions(s *Server) generated.ChiServerOptions {
 		s.logger.Error().Msg("Swagger fails")
 		os.Exit(1)
 	}
-	// this part needs for validation. / prefix added only for /spec route with static spec files
 	swagger.Servers = openapi3.Servers{&openapi3.Server{URL: "/api/v1"}, &openapi3.Server{URL: "/"}}
 
 	r := chi.NewRouter()
 
 	validatorOptions := &chmw.Options{}
 	validatorOptions.Options.AuthenticationFunc = func(c context.Context, input *openapi3filter.AuthenticationInput) error {
-		// При указании блока security в методах openapi, функция AuthenticationFunc начинает срабатывать раньше, Чем инициализация middleware.
-		// Использовать здесь наш middleware нельзя,  ак как все middleware инициализируются после routers, работаем только с нашим middleware авторизации
 		return nil
 	}
 
@@ -58,7 +55,6 @@ func NewServerOptions(s *Server) generated.ChiServerOptions {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.SetHeader("Content-Type", "application/json"))
 
-	// Publish redoc specification (all from api dir) path actual for current docker build, fix for local
 	return generated.ChiServerOptions{
 		BaseURL:    APIPrefix,
 		BaseRouter: r,
