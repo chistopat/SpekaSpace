@@ -1,4 +1,6 @@
 - name: Создать спеку с минимальным набором полей
+  fixtures:
+    - spec1
   method: POST
   path: /api/v1/specification
   headers:

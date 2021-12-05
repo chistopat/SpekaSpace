@@ -22,6 +22,7 @@ func (Specification) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(uuid.New),
 		field.Time("created_at").Default(time.Now),
+		field.Time("updated_at").Default(time.Now),
 		field.String("name").Unique(),
 		field.String("description"),
 		field.String("author").Optional(),

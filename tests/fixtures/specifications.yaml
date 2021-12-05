@@ -1,0 +1,8 @@
+tables:
+  posts:
+    - $name: spec1
+      description: foo bar buzz
+      name: my_spec
+      author: Jane Dow
+      created_at: 2021-01-01 12:30:12
+      updated_at: 2021-01-01 12:30:12

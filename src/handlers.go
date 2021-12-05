@@ -1,6 +1,7 @@
 package speka_space
 
 import (
+	"encoding/json"
 	"fmt"
 	gen "git.redmadrobot.com/internship/backend/lim-ext/src/generated"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/openapi"
@@ -8,7 +9,27 @@ import (
 	"net/http"
 )
 
-func (s Server) CreateSpecification(w http.ResponseWriter, r *http.Request) { return }
+func (s Server) CreateSpecification(w http.ResponseWriter, r *http.Request) {
+	s.logger.Debug().Msg("Handle CreateSpecification request")
+
+	var req gen.CreateSpecificationJSONBody
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	spec, err := s.repo.Client.Specification.Create().
+		SetName(*req.Name).
+		SetDescription(*req.Description).
+		Save(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	openapi.Resp(w, http.StatusCreated, spec)
+}
 
 func (s Server) ReadSpecification(w http.ResponseWriter, r *http.Request, uuid string) {
 	s.logger.Debug().Msg("Handle ReadSpecification request")

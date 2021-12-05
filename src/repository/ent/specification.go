@@ -20,6 +20,8 @@ type Specification struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Description holds the value of the "description" field.
@@ -41,7 +43,7 @@ func (*Specification) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new([]byte)
 		case specification.FieldName, specification.FieldDescription, specification.FieldAuthor, specification.FieldStatus:
 			values[i] = new(sql.NullString)
-		case specification.FieldCreatedAt:
+		case specification.FieldCreatedAt, specification.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case specification.FieldID:
 			values[i] = new(uuid.UUID)
@@ -71,6 +73,12 @@ func (s *Specification) assignValues(columns []string, values []interface{}) err
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				s.CreatedAt = value.Time
+			}
+		case specification.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				s.UpdatedAt = value.Time
 			}
 		case specification.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -134,6 +142,8 @@ func (s *Specification) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", s.ID))
 	builder.WriteString(", created_at=")
 	builder.WriteString(s.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", updated_at=")
+	builder.WriteString(s.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", name=")
 	builder.WriteString(s.Name)
 	builder.WriteString(", description=")

@@ -41,6 +41,20 @@ func (su *SpecificationUpdate) SetNillableCreatedAt(t *time.Time) *Specification
 	return su
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (su *SpecificationUpdate) SetUpdatedAt(t time.Time) *SpecificationUpdate {
+	su.mutation.SetUpdatedAt(t)
+	return su
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (su *SpecificationUpdate) SetNillableUpdatedAt(t *time.Time) *SpecificationUpdate {
+	if t != nil {
+		su.SetUpdatedAt(*t)
+	}
+	return su
+}
+
 // SetName sets the "name" field.
 func (su *SpecificationUpdate) SetName(s string) *SpecificationUpdate {
 	su.mutation.SetName(s)
@@ -199,6 +213,13 @@ func (su *SpecificationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: specification.FieldCreatedAt,
 		})
 	}
+	if value, ok := su.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: specification.FieldUpdatedAt,
+		})
+	}
 	if value, ok := su.mutation.Name(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -275,6 +296,20 @@ func (suo *SpecificationUpdateOne) SetCreatedAt(t time.Time) *SpecificationUpdat
 func (suo *SpecificationUpdateOne) SetNillableCreatedAt(t *time.Time) *SpecificationUpdateOne {
 	if t != nil {
 		suo.SetCreatedAt(*t)
+	}
+	return suo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (suo *SpecificationUpdateOne) SetUpdatedAt(t time.Time) *SpecificationUpdateOne {
+	suo.mutation.SetUpdatedAt(t)
+	return suo
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (suo *SpecificationUpdateOne) SetNillableUpdatedAt(t *time.Time) *SpecificationUpdateOne {
+	if t != nil {
+		suo.SetUpdatedAt(*t)
 	}
 	return suo
 }
@@ -459,6 +494,13 @@ func (suo *SpecificationUpdateOne) sqlSave(ctx context.Context) (_node *Specific
 			Type:   field.TypeTime,
 			Value:  value,
 			Column: specification.FieldCreatedAt,
+		})
+	}
+	if value, ok := suo.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: specification.FieldUpdatedAt,
 		})
 	}
 	if value, ok := suo.mutation.Name(); ok {

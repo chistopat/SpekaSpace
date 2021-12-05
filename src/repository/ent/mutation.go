@@ -34,6 +34,7 @@ type SpecificationMutation struct {
 	typ           string
 	id            *uuid.UUID
 	created_at    *time.Time
+	updated_at    *time.Time
 	name          *string
 	description   *string
 	author        *string
@@ -164,6 +165,42 @@ func (m *SpecificationMutation) OldCreatedAt(ctx context.Context) (v time.Time, 
 // ResetCreatedAt resets all changes to the "created_at" field.
 func (m *SpecificationMutation) ResetCreatedAt() {
 	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *SpecificationMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *SpecificationMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Specification entity.
+// If the Specification object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecificationMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *SpecificationMutation) ResetUpdatedAt() {
+	m.updated_at = nil
 }
 
 // SetName sets the "name" field.
@@ -391,9 +428,12 @@ func (m *SpecificationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SpecificationMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, specification.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, specification.FieldUpdatedAt)
 	}
 	if m.name != nil {
 		fields = append(fields, specification.FieldName)
@@ -420,6 +460,8 @@ func (m *SpecificationMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case specification.FieldCreatedAt:
 		return m.CreatedAt()
+	case specification.FieldUpdatedAt:
+		return m.UpdatedAt()
 	case specification.FieldName:
 		return m.Name()
 	case specification.FieldDescription:
@@ -441,6 +483,8 @@ func (m *SpecificationMutation) OldField(ctx context.Context, name string) (ent.
 	switch name {
 	case specification.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
+	case specification.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
 	case specification.FieldName:
 		return m.OldName(ctx)
 	case specification.FieldDescription:
@@ -466,6 +510,13 @@ func (m *SpecificationMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCreatedAt(v)
+		return nil
+	case specification.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
 		return nil
 	case specification.FieldName:
 		v, ok := value.(string)
@@ -568,6 +619,9 @@ func (m *SpecificationMutation) ResetField(name string) error {
 	switch name {
 	case specification.FieldCreatedAt:
 		m.ResetCreatedAt()
+		return nil
+	case specification.FieldUpdatedAt:
+		m.ResetUpdatedAt()
 		return nil
 	case specification.FieldName:
 		m.ResetName()

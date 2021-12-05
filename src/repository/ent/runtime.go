@@ -20,6 +20,10 @@ func init() {
 	specificationDescCreatedAt := specificationFields[1].Descriptor()
 	// specification.DefaultCreatedAt holds the default value on creation for the created_at field.
 	specification.DefaultCreatedAt = specificationDescCreatedAt.Default.(func() time.Time)
+	// specificationDescUpdatedAt is the schema descriptor for updated_at field.
+	specificationDescUpdatedAt := specificationFields[2].Descriptor()
+	// specification.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	specification.DefaultUpdatedAt = specificationDescUpdatedAt.Default.(func() time.Time)
 	// specificationDescID is the schema descriptor for id field.
 	specificationDescID := specificationFields[0].Descriptor()
 	// specification.DefaultID holds the default value on creation for the id field.
