@@ -1,0 +1,42 @@
+- name: Создать спеку с минимальным набором полей
+  fixtures:
+    - specifications
+  method: POST
+  path: /api/v1/specification
+  headers:
+    Content-Type: application/json
+  request: |
+    {
+      "name": "my_spec",
+      "description": "all about my super api =)"
+    }
+
+  response:
+    400: |
+      ent: constraint failed: insert node to table "specifications": pq: duplicate key value violates unique constraint "specifications_name_key"
+
+
+- name: Get existing spec by id
+  fixtures:
+    - specifications
+  method: GET
+  path: /api/v1/specification/bbbad0a1-1afd-4986-8415-9981a8d10dcc
+  headers:
+    Content-Type: application/json
+
+  response:
+    200: |
+      {
+        "id":"bbbad0a1-1afd-4986-8415-9981a8d10dcc",
+        "created_at":"2021-01-01T12:30:12Z",
+        "updated_at":"2021-01-01T12:30:12Z",
+        "name":"my_spec",
+        "description":"foo bar buzz",
+        "author":"Jane Dow",
+        "status":"DRAFT"
+      }
+
+  comparisonParams:
+    ignoreValues: false
+    ignoreArraysOrdering: false
+    disallowExtraFields: false
