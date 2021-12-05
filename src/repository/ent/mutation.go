@@ -6,9 +6,11 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent/predicate"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent/specification"
+	"github.com/google/uuid"
 
 	"entgo.io/ent"
 )
@@ -30,10 +32,13 @@ type SpecificationMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *uuid.UUID
+	created_at    *time.Time
 	name          *string
+	description   *string
 	author        *string
-	status        *string
+	status        *specification.Status
+	spec          *[]string
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Specification, error)
@@ -60,7 +65,7 @@ func newSpecificationMutation(c config, op Op, opts ...specificationOption) *Spe
 }
 
 // withSpecificationID sets the ID field of the mutation.
-func withSpecificationID(id int) specificationOption {
+func withSpecificationID(id uuid.UUID) specificationOption {
 	return func(m *SpecificationMutation) {
 		var (
 			err   error
@@ -112,17 +117,53 @@ func (m SpecificationMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Specification entities.
-func (m *SpecificationMutation) SetID(id int) {
+func (m *SpecificationMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *SpecificationMutation) ID() (id int, exists bool) {
+func (m *SpecificationMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
 	return *m.id, true
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *SpecificationMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *SpecificationMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Specification entity.
+// If the Specification object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecificationMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *SpecificationMutation) ResetCreatedAt() {
+	m.created_at = nil
 }
 
 // SetName sets the "name" field.
@@ -161,6 +202,42 @@ func (m *SpecificationMutation) ResetName() {
 	m.name = nil
 }
 
+// SetDescription sets the "description" field.
+func (m *SpecificationMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *SpecificationMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the Specification entity.
+// If the Specification object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecificationMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *SpecificationMutation) ResetDescription() {
+	m.description = nil
+}
+
 // SetAuthor sets the "author" field.
 func (m *SpecificationMutation) SetAuthor(s string) {
 	m.author = &s
@@ -192,18 +269,31 @@ func (m *SpecificationMutation) OldAuthor(ctx context.Context) (v string, err er
 	return oldValue.Author, nil
 }
 
+// ClearAuthor clears the value of the "author" field.
+func (m *SpecificationMutation) ClearAuthor() {
+	m.author = nil
+	m.clearedFields[specification.FieldAuthor] = struct{}{}
+}
+
+// AuthorCleared returns if the "author" field was cleared in this mutation.
+func (m *SpecificationMutation) AuthorCleared() bool {
+	_, ok := m.clearedFields[specification.FieldAuthor]
+	return ok
+}
+
 // ResetAuthor resets all changes to the "author" field.
 func (m *SpecificationMutation) ResetAuthor() {
 	m.author = nil
+	delete(m.clearedFields, specification.FieldAuthor)
 }
 
 // SetStatus sets the "status" field.
-func (m *SpecificationMutation) SetStatus(s string) {
+func (m *SpecificationMutation) SetStatus(s specification.Status) {
 	m.status = &s
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *SpecificationMutation) Status() (r string, exists bool) {
+func (m *SpecificationMutation) Status() (r specification.Status, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -214,7 +304,7 @@ func (m *SpecificationMutation) Status() (r string, exists bool) {
 // OldStatus returns the old "status" field's value of the Specification entity.
 // If the Specification object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SpecificationMutation) OldStatus(ctx context.Context) (v string, err error) {
+func (m *SpecificationMutation) OldStatus(ctx context.Context) (v specification.Status, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -231,6 +321,55 @@ func (m *SpecificationMutation) OldStatus(ctx context.Context) (v string, err er
 // ResetStatus resets all changes to the "status" field.
 func (m *SpecificationMutation) ResetStatus() {
 	m.status = nil
+}
+
+// SetSpec sets the "spec" field.
+func (m *SpecificationMutation) SetSpec(s []string) {
+	m.spec = &s
+}
+
+// Spec returns the value of the "spec" field in the mutation.
+func (m *SpecificationMutation) Spec() (r []string, exists bool) {
+	v := m.spec
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSpec returns the old "spec" field's value of the Specification entity.
+// If the Specification object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecificationMutation) OldSpec(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldSpec is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldSpec requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSpec: %w", err)
+	}
+	return oldValue.Spec, nil
+}
+
+// ClearSpec clears the value of the "spec" field.
+func (m *SpecificationMutation) ClearSpec() {
+	m.spec = nil
+	m.clearedFields[specification.FieldSpec] = struct{}{}
+}
+
+// SpecCleared returns if the "spec" field was cleared in this mutation.
+func (m *SpecificationMutation) SpecCleared() bool {
+	_, ok := m.clearedFields[specification.FieldSpec]
+	return ok
+}
+
+// ResetSpec resets all changes to the "spec" field.
+func (m *SpecificationMutation) ResetSpec() {
+	m.spec = nil
+	delete(m.clearedFields, specification.FieldSpec)
 }
 
 // Where appends a list predicates to the SpecificationMutation builder.
@@ -252,15 +391,24 @@ func (m *SpecificationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SpecificationMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 6)
+	if m.created_at != nil {
+		fields = append(fields, specification.FieldCreatedAt)
+	}
 	if m.name != nil {
 		fields = append(fields, specification.FieldName)
+	}
+	if m.description != nil {
+		fields = append(fields, specification.FieldDescription)
 	}
 	if m.author != nil {
 		fields = append(fields, specification.FieldAuthor)
 	}
 	if m.status != nil {
 		fields = append(fields, specification.FieldStatus)
+	}
+	if m.spec != nil {
+		fields = append(fields, specification.FieldSpec)
 	}
 	return fields
 }
@@ -270,12 +418,18 @@ func (m *SpecificationMutation) Fields() []string {
 // schema.
 func (m *SpecificationMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case specification.FieldCreatedAt:
+		return m.CreatedAt()
 	case specification.FieldName:
 		return m.Name()
+	case specification.FieldDescription:
+		return m.Description()
 	case specification.FieldAuthor:
 		return m.Author()
 	case specification.FieldStatus:
 		return m.Status()
+	case specification.FieldSpec:
+		return m.Spec()
 	}
 	return nil, false
 }
@@ -285,12 +439,18 @@ func (m *SpecificationMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *SpecificationMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case specification.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
 	case specification.FieldName:
 		return m.OldName(ctx)
+	case specification.FieldDescription:
+		return m.OldDescription(ctx)
 	case specification.FieldAuthor:
 		return m.OldAuthor(ctx)
 	case specification.FieldStatus:
 		return m.OldStatus(ctx)
+	case specification.FieldSpec:
+		return m.OldSpec(ctx)
 	}
 	return nil, fmt.Errorf("unknown Specification field %s", name)
 }
@@ -300,12 +460,26 @@ func (m *SpecificationMutation) OldField(ctx context.Context, name string) (ent.
 // type.
 func (m *SpecificationMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case specification.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
 	case specification.FieldName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case specification.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
 		return nil
 	case specification.FieldAuthor:
 		v, ok := value.(string)
@@ -315,11 +489,18 @@ func (m *SpecificationMutation) SetField(name string, value ent.Value) error {
 		m.SetAuthor(v)
 		return nil
 	case specification.FieldStatus:
-		v, ok := value.(string)
+		v, ok := value.(specification.Status)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
+		return nil
+	case specification.FieldSpec:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSpec(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Specification field %s", name)
@@ -350,7 +531,14 @@ func (m *SpecificationMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *SpecificationMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(specification.FieldAuthor) {
+		fields = append(fields, specification.FieldAuthor)
+	}
+	if m.FieldCleared(specification.FieldSpec) {
+		fields = append(fields, specification.FieldSpec)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -363,6 +551,14 @@ func (m *SpecificationMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *SpecificationMutation) ClearField(name string) error {
+	switch name {
+	case specification.FieldAuthor:
+		m.ClearAuthor()
+		return nil
+	case specification.FieldSpec:
+		m.ClearSpec()
+		return nil
+	}
 	return fmt.Errorf("unknown Specification nullable field %s", name)
 }
 
@@ -370,14 +566,23 @@ func (m *SpecificationMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *SpecificationMutation) ResetField(name string) error {
 	switch name {
+	case specification.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
 	case specification.FieldName:
 		m.ResetName()
+		return nil
+	case specification.FieldDescription:
+		m.ResetDescription()
 		return nil
 	case specification.FieldAuthor:
 		m.ResetAuthor()
 		return nil
 	case specification.FieldStatus:
 		m.ResetStatus()
+		return nil
+	case specification.FieldSpec:
+		m.ResetSpec()
 		return nil
 	}
 	return fmt.Errorf("unknown Specification field %s", name)

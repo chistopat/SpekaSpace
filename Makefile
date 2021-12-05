@@ -11,6 +11,8 @@ GOBIN = ./bin/main
 .PHONY: clean
 clean:
 	if [ -d "$(GENERATED_PATH)" ]; then	rm -rf $(GENERATED_PATH); fi
+	if [ -d "$(ENT_GENERATED_PATH)" ]; then	rm -rf $(ENT_GENERATED_PATH); fi
+
 
 generate:
 	mkdir -p $(GENERATED_PATH)
@@ -22,7 +24,7 @@ generate:
 gen: clean generate
 
 _test:
-	go run github.com/lamoda/gonkey -tests tests -host localhost:8000
+	go run github.com/lamoda/gonkey -host ${SERVER_HOST}:${SERVER_PORT} -tests tests/cases -env-file .env
 
 run:
 	go run $(MAIN)
@@ -41,7 +43,7 @@ stop:
 
 restart: stop build start
 
-test: build start _test stop
+test: rebuild _test
 
 set:
 	set -a && source .env && set +a

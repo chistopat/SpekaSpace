@@ -1,0 +1,10 @@
+- name: get specification.
+  method: GET
+  path: /api/v1/specification/e2e98b64-fa85-4af7-a332-7aadae274b9e
+
+  response:
+    200: |
+      {
+        "author": "chistopat",
+        "name":"my_super_spec"
+      }

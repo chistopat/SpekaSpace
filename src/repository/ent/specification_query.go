@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent/predicate"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent/specification"
+	"github.com/google/uuid"
 )
 
 // SpecificationQuery is the builder for querying Specification entities.
@@ -84,8 +85,8 @@ func (sq *SpecificationQuery) FirstX(ctx context.Context) *Specification {
 
 // FirstID returns the first Specification ID from the query.
 // Returns a *NotFoundError when no Specification ID was found.
-func (sq *SpecificationQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (sq *SpecificationQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = sq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -97,7 +98,7 @@ func (sq *SpecificationQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (sq *SpecificationQuery) FirstIDX(ctx context.Context) int {
+func (sq *SpecificationQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := sq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -135,8 +136,8 @@ func (sq *SpecificationQuery) OnlyX(ctx context.Context) *Specification {
 // OnlyID is like Only, but returns the only Specification ID in the query.
 // Returns a *NotSingularError when exactly one Specification ID is not found.
 // Returns a *NotFoundError when no entities are found.
-func (sq *SpecificationQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (sq *SpecificationQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = sq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -152,7 +153,7 @@ func (sq *SpecificationQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (sq *SpecificationQuery) OnlyIDX(ctx context.Context) int {
+func (sq *SpecificationQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := sq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,8 +179,8 @@ func (sq *SpecificationQuery) AllX(ctx context.Context) []*Specification {
 }
 
 // IDs executes the query and returns a list of Specification IDs.
-func (sq *SpecificationQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
+func (sq *SpecificationQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	var ids []uuid.UUID
 	if err := sq.Select(specification.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -187,7 +188,7 @@ func (sq *SpecificationQuery) IDs(ctx context.Context) ([]int, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (sq *SpecificationQuery) IDsX(ctx context.Context) []int {
+func (sq *SpecificationQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := sq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -253,12 +254,12 @@ func (sq *SpecificationQuery) Clone() *SpecificationQuery {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Specification.Query().
-//		GroupBy(specification.FieldName).
+//		GroupBy(specification.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
@@ -280,11 +281,11 @@ func (sq *SpecificationQuery) GroupBy(field string, fields ...string) *Specifica
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //	}
 //
 //	client.Specification.Query().
-//		Select(specification.FieldName).
+//		Select(specification.FieldCreatedAt).
 //		Scan(ctx, &v)
 //
 func (sq *SpecificationQuery) Select(fields ...string) *SpecificationSelect {
@@ -353,7 +354,7 @@ func (sq *SpecificationQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   specification.Table,
 			Columns: specification.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: specification.FieldID,
 			},
 		},

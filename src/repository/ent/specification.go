@@ -3,24 +3,33 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent/specification"
+	"github.com/google/uuid"
 )
 
 // Specification is the model entity for the Specification schema.
 type Specification struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
 	// Author holds the value of the "author" field.
 	Author string `json:"author,omitempty"`
 	// Status holds the value of the "status" field.
-	Status string `json:"status,omitempty"`
+	Status specification.Status `json:"status,omitempty"`
+	// Spec holds the value of the "spec" field.
+	Spec []string `json:"spec,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -28,10 +37,14 @@ func (*Specification) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case specification.FieldID:
-			values[i] = new(sql.NullInt64)
-		case specification.FieldName, specification.FieldAuthor, specification.FieldStatus:
+		case specification.FieldSpec:
+			values[i] = new([]byte)
+		case specification.FieldName, specification.FieldDescription, specification.FieldAuthor, specification.FieldStatus:
 			values[i] = new(sql.NullString)
+		case specification.FieldCreatedAt:
+			values[i] = new(sql.NullTime)
+		case specification.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Specification", columns[i])
 		}
@@ -48,16 +61,28 @@ func (s *Specification) assignValues(columns []string, values []interface{}) err
 	for i := range columns {
 		switch columns[i] {
 		case specification.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				s.ID = *value
 			}
-			s.ID = int(value.Int64)
+		case specification.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				s.CreatedAt = value.Time
+			}
 		case specification.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				s.Name = value.String
+			}
+		case specification.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				s.Description = value.String
 			}
 		case specification.FieldAuthor:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -69,7 +94,15 @@ func (s *Specification) assignValues(columns []string, values []interface{}) err
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				s.Status = value.String
+				s.Status = specification.Status(value.String)
+			}
+		case specification.FieldSpec:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field spec", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &s.Spec); err != nil {
+					return fmt.Errorf("unmarshal field spec: %w", err)
+				}
 			}
 		}
 	}
@@ -99,12 +132,18 @@ func (s *Specification) String() string {
 	var builder strings.Builder
 	builder.WriteString("Specification(")
 	builder.WriteString(fmt.Sprintf("id=%v", s.ID))
+	builder.WriteString(", created_at=")
+	builder.WriteString(s.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", name=")
 	builder.WriteString(s.Name)
+	builder.WriteString(", description=")
+	builder.WriteString(s.Description)
 	builder.WriteString(", author=")
 	builder.WriteString(s.Author)
 	builder.WriteString(", status=")
-	builder.WriteString(s.Status)
+	builder.WriteString(fmt.Sprintf("%v", s.Status))
+	builder.WriteString(", spec=")
+	builder.WriteString(fmt.Sprintf("%v", s.Spec))
 	builder.WriteByte(')')
 	return builder.String()
 }

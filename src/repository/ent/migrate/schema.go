@@ -10,10 +10,13 @@ import (
 var (
 	// SpecificationsColumns holds the columns for the "specifications" table.
 	SpecificationsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString, Unique: true},
-		{Name: "author", Type: field.TypeString},
-		{Name: "status", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "author", Type: field.TypeString, Nullable: true},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"DRAFT", "NEW"}, Default: "DRAFT"},
+		{Name: "spec", Type: field.TypeJSON, Nullable: true},
 	}
 	// SpecificationsTable holds the schema information for the "specifications" table.
 	SpecificationsTable = &schema.Table{

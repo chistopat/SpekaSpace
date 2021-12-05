@@ -8,7 +8,7 @@ info:
     email: chistopat@gmail.com
 
 servers:
-  - url: 'http://localhost:8080'
+  - url: 'http://localhost:8042'
     description: local
   - url: 'http://test'
     description: test
@@ -73,19 +73,19 @@ paths:
         400:
           $ref: "#/components/responses/ErrorResponse"
 
-  /specification/{id}:
+  /specification/{uuid}:
     get:
       tags:
         - Specifications
-      summary: Get specification by id
+      summary: Get specification by uuid
       operationId: ReadSpecification
       parameters:
-        - name: id
+        - name: uuid
           in: path
           description: 'The specification id that needs to be fetched.'
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         200:
           description: Ok

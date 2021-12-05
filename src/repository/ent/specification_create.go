@@ -6,10 +6,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent/specification"
+	"github.com/google/uuid"
 )
 
 // SpecificationCreate is the builder for creating a Specification entity.
@@ -19,9 +21,29 @@ type SpecificationCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (sc *SpecificationCreate) SetCreatedAt(t time.Time) *SpecificationCreate {
+	sc.mutation.SetCreatedAt(t)
+	return sc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (sc *SpecificationCreate) SetNillableCreatedAt(t *time.Time) *SpecificationCreate {
+	if t != nil {
+		sc.SetCreatedAt(*t)
+	}
+	return sc
+}
+
 // SetName sets the "name" field.
 func (sc *SpecificationCreate) SetName(s string) *SpecificationCreate {
 	sc.mutation.SetName(s)
+	return sc
+}
+
+// SetDescription sets the "description" field.
+func (sc *SpecificationCreate) SetDescription(s string) *SpecificationCreate {
+	sc.mutation.SetDescription(s)
 	return sc
 }
 
@@ -31,15 +53,37 @@ func (sc *SpecificationCreate) SetAuthor(s string) *SpecificationCreate {
 	return sc
 }
 
+// SetNillableAuthor sets the "author" field if the given value is not nil.
+func (sc *SpecificationCreate) SetNillableAuthor(s *string) *SpecificationCreate {
+	if s != nil {
+		sc.SetAuthor(*s)
+	}
+	return sc
+}
+
 // SetStatus sets the "status" field.
-func (sc *SpecificationCreate) SetStatus(s string) *SpecificationCreate {
+func (sc *SpecificationCreate) SetStatus(s specification.Status) *SpecificationCreate {
 	sc.mutation.SetStatus(s)
 	return sc
 }
 
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (sc *SpecificationCreate) SetNillableStatus(s *specification.Status) *SpecificationCreate {
+	if s != nil {
+		sc.SetStatus(*s)
+	}
+	return sc
+}
+
+// SetSpec sets the "spec" field.
+func (sc *SpecificationCreate) SetSpec(s []string) *SpecificationCreate {
+	sc.mutation.SetSpec(s)
+	return sc
+}
+
 // SetID sets the "id" field.
-func (sc *SpecificationCreate) SetID(i int) *SpecificationCreate {
-	sc.mutation.SetID(i)
+func (sc *SpecificationCreate) SetID(u uuid.UUID) *SpecificationCreate {
+	sc.mutation.SetID(u)
 	return sc
 }
 
@@ -54,6 +98,7 @@ func (sc *SpecificationCreate) Save(ctx context.Context) (*Specification, error)
 		err  error
 		node *Specification
 	)
+	sc.defaults()
 	if len(sc.hooks) == 0 {
 		if err = sc.check(); err != nil {
 			return nil, err
@@ -111,16 +156,40 @@ func (sc *SpecificationCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (sc *SpecificationCreate) defaults() {
+	if _, ok := sc.mutation.CreatedAt(); !ok {
+		v := specification.DefaultCreatedAt()
+		sc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := sc.mutation.Status(); !ok {
+		v := specification.DefaultStatus
+		sc.mutation.SetStatus(v)
+	}
+	if _, ok := sc.mutation.ID(); !ok {
+		v := specification.DefaultID()
+		sc.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (sc *SpecificationCreate) check() error {
+	if _, ok := sc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "created_at"`)}
+	}
 	if _, ok := sc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "name"`)}
 	}
-	if _, ok := sc.mutation.Author(); !ok {
-		return &ValidationError{Name: "author", err: errors.New(`ent: missing required field "author"`)}
+	if _, ok := sc.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "description"`)}
 	}
 	if _, ok := sc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "status"`)}
+	}
+	if v, ok := sc.mutation.Status(); ok {
+		if err := specification.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "status": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -133,9 +202,8 @@ func (sc *SpecificationCreate) sqlSave(ctx context.Context) (*Specification, err
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != _node.ID {
-		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		_node.ID = _spec.ID.Value.(uuid.UUID)
 	}
 	return _node, nil
 }
@@ -146,7 +214,7 @@ func (sc *SpecificationCreate) createSpec() (*Specification, *sqlgraph.CreateSpe
 		_spec = &sqlgraph.CreateSpec{
 			Table: specification.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: specification.FieldID,
 			},
 		}
@@ -155,6 +223,14 @@ func (sc *SpecificationCreate) createSpec() (*Specification, *sqlgraph.CreateSpe
 		_node.ID = id
 		_spec.ID.Value = id
 	}
+	if value, ok := sc.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: specification.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
+	}
 	if value, ok := sc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -162,6 +238,14 @@ func (sc *SpecificationCreate) createSpec() (*Specification, *sqlgraph.CreateSpe
 			Column: specification.FieldName,
 		})
 		_node.Name = value
+	}
+	if value, ok := sc.mutation.Description(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: specification.FieldDescription,
+		})
+		_node.Description = value
 	}
 	if value, ok := sc.mutation.Author(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -173,11 +257,19 @@ func (sc *SpecificationCreate) createSpec() (*Specification, *sqlgraph.CreateSpe
 	}
 	if value, ok := sc.mutation.Status(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeEnum,
 			Value:  value,
 			Column: specification.FieldStatus,
 		})
 		_node.Status = value
+	}
+	if value, ok := sc.mutation.Spec(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: specification.FieldSpec,
+		})
+		_node.Spec = value
 	}
 	return _node, _spec
 }
@@ -196,6 +288,7 @@ func (scb *SpecificationCreateBulk) Save(ctx context.Context) ([]*Specification,
 	for i := range scb.builders {
 		func(i int, root context.Context) {
 			builder := scb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*SpecificationMutation)
 				if !ok {
@@ -223,10 +316,6 @@ func (scb *SpecificationCreateBulk) Save(ctx context.Context) ([]*Specification,
 				}
 				mutation.id = &nodes[i].ID
 				mutation.done = true
-				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				return nodes[i], nil
 			})
 			for i := len(builder.hooks) - 1; i >= 0; i-- {

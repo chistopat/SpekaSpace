@@ -5,6 +5,7 @@ package ent
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -26,9 +27,29 @@ func (su *SpecificationUpdate) Where(ps ...predicate.Specification) *Specificati
 	return su
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (su *SpecificationUpdate) SetCreatedAt(t time.Time) *SpecificationUpdate {
+	su.mutation.SetCreatedAt(t)
+	return su
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (su *SpecificationUpdate) SetNillableCreatedAt(t *time.Time) *SpecificationUpdate {
+	if t != nil {
+		su.SetCreatedAt(*t)
+	}
+	return su
+}
+
 // SetName sets the "name" field.
 func (su *SpecificationUpdate) SetName(s string) *SpecificationUpdate {
 	su.mutation.SetName(s)
+	return su
+}
+
+// SetDescription sets the "description" field.
+func (su *SpecificationUpdate) SetDescription(s string) *SpecificationUpdate {
+	su.mutation.SetDescription(s)
 	return su
 }
 
@@ -38,9 +59,43 @@ func (su *SpecificationUpdate) SetAuthor(s string) *SpecificationUpdate {
 	return su
 }
 
+// SetNillableAuthor sets the "author" field if the given value is not nil.
+func (su *SpecificationUpdate) SetNillableAuthor(s *string) *SpecificationUpdate {
+	if s != nil {
+		su.SetAuthor(*s)
+	}
+	return su
+}
+
+// ClearAuthor clears the value of the "author" field.
+func (su *SpecificationUpdate) ClearAuthor() *SpecificationUpdate {
+	su.mutation.ClearAuthor()
+	return su
+}
+
 // SetStatus sets the "status" field.
-func (su *SpecificationUpdate) SetStatus(s string) *SpecificationUpdate {
+func (su *SpecificationUpdate) SetStatus(s specification.Status) *SpecificationUpdate {
 	su.mutation.SetStatus(s)
+	return su
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (su *SpecificationUpdate) SetNillableStatus(s *specification.Status) *SpecificationUpdate {
+	if s != nil {
+		su.SetStatus(*s)
+	}
+	return su
+}
+
+// SetSpec sets the "spec" field.
+func (su *SpecificationUpdate) SetSpec(s []string) *SpecificationUpdate {
+	su.mutation.SetSpec(s)
+	return su
+}
+
+// ClearSpec clears the value of the "spec" field.
+func (su *SpecificationUpdate) ClearSpec() *SpecificationUpdate {
+	su.mutation.ClearSpec()
 	return su
 }
 
@@ -56,12 +111,18 @@ func (su *SpecificationUpdate) Save(ctx context.Context) (int, error) {
 		affected int
 	)
 	if len(su.hooks) == 0 {
+		if err = su.check(); err != nil {
+			return 0, err
+		}
 		affected, err = su.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*SpecificationMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = su.check(); err != nil {
+				return 0, err
 			}
 			su.mutation = mutation
 			affected, err = su.sqlSave(ctx)
@@ -103,13 +164,23 @@ func (su *SpecificationUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (su *SpecificationUpdate) check() error {
+	if v, ok := su.mutation.Status(); ok {
+		if err := specification.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	return nil
+}
+
 func (su *SpecificationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   specification.Table,
 			Columns: specification.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: specification.FieldID,
 			},
 		},
@@ -121,11 +192,25 @@ func (su *SpecificationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := su.mutation.CreatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: specification.FieldCreatedAt,
+		})
+	}
 	if value, ok := su.mutation.Name(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
 			Column: specification.FieldName,
+		})
+	}
+	if value, ok := su.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: specification.FieldDescription,
 		})
 	}
 	if value, ok := su.mutation.Author(); ok {
@@ -135,11 +220,30 @@ func (su *SpecificationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: specification.FieldAuthor,
 		})
 	}
+	if su.mutation.AuthorCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: specification.FieldAuthor,
+		})
+	}
 	if value, ok := su.mutation.Status(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeEnum,
 			Value:  value,
 			Column: specification.FieldStatus,
+		})
+	}
+	if value, ok := su.mutation.Spec(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: specification.FieldSpec,
+		})
+	}
+	if su.mutation.SpecCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Column: specification.FieldSpec,
 		})
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
@@ -161,9 +265,29 @@ type SpecificationUpdateOne struct {
 	mutation *SpecificationMutation
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (suo *SpecificationUpdateOne) SetCreatedAt(t time.Time) *SpecificationUpdateOne {
+	suo.mutation.SetCreatedAt(t)
+	return suo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (suo *SpecificationUpdateOne) SetNillableCreatedAt(t *time.Time) *SpecificationUpdateOne {
+	if t != nil {
+		suo.SetCreatedAt(*t)
+	}
+	return suo
+}
+
 // SetName sets the "name" field.
 func (suo *SpecificationUpdateOne) SetName(s string) *SpecificationUpdateOne {
 	suo.mutation.SetName(s)
+	return suo
+}
+
+// SetDescription sets the "description" field.
+func (suo *SpecificationUpdateOne) SetDescription(s string) *SpecificationUpdateOne {
+	suo.mutation.SetDescription(s)
 	return suo
 }
 
@@ -173,9 +297,43 @@ func (suo *SpecificationUpdateOne) SetAuthor(s string) *SpecificationUpdateOne {
 	return suo
 }
 
+// SetNillableAuthor sets the "author" field if the given value is not nil.
+func (suo *SpecificationUpdateOne) SetNillableAuthor(s *string) *SpecificationUpdateOne {
+	if s != nil {
+		suo.SetAuthor(*s)
+	}
+	return suo
+}
+
+// ClearAuthor clears the value of the "author" field.
+func (suo *SpecificationUpdateOne) ClearAuthor() *SpecificationUpdateOne {
+	suo.mutation.ClearAuthor()
+	return suo
+}
+
 // SetStatus sets the "status" field.
-func (suo *SpecificationUpdateOne) SetStatus(s string) *SpecificationUpdateOne {
+func (suo *SpecificationUpdateOne) SetStatus(s specification.Status) *SpecificationUpdateOne {
 	suo.mutation.SetStatus(s)
+	return suo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (suo *SpecificationUpdateOne) SetNillableStatus(s *specification.Status) *SpecificationUpdateOne {
+	if s != nil {
+		suo.SetStatus(*s)
+	}
+	return suo
+}
+
+// SetSpec sets the "spec" field.
+func (suo *SpecificationUpdateOne) SetSpec(s []string) *SpecificationUpdateOne {
+	suo.mutation.SetSpec(s)
+	return suo
+}
+
+// ClearSpec clears the value of the "spec" field.
+func (suo *SpecificationUpdateOne) ClearSpec() *SpecificationUpdateOne {
+	suo.mutation.ClearSpec()
 	return suo
 }
 
@@ -198,12 +356,18 @@ func (suo *SpecificationUpdateOne) Save(ctx context.Context) (*Specification, er
 		node *Specification
 	)
 	if len(suo.hooks) == 0 {
+		if err = suo.check(); err != nil {
+			return nil, err
+		}
 		node, err = suo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*SpecificationMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = suo.check(); err != nil {
+				return nil, err
 			}
 			suo.mutation = mutation
 			node, err = suo.sqlSave(ctx)
@@ -245,13 +409,23 @@ func (suo *SpecificationUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (suo *SpecificationUpdateOne) check() error {
+	if v, ok := suo.mutation.Status(); ok {
+		if err := specification.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	return nil
+}
+
 func (suo *SpecificationUpdateOne) sqlSave(ctx context.Context) (_node *Specification, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   specification.Table,
 			Columns: specification.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: specification.FieldID,
 			},
 		},
@@ -280,11 +454,25 @@ func (suo *SpecificationUpdateOne) sqlSave(ctx context.Context) (_node *Specific
 			}
 		}
 	}
+	if value, ok := suo.mutation.CreatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: specification.FieldCreatedAt,
+		})
+	}
 	if value, ok := suo.mutation.Name(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
 			Column: specification.FieldName,
+		})
+	}
+	if value, ok := suo.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: specification.FieldDescription,
 		})
 	}
 	if value, ok := suo.mutation.Author(); ok {
@@ -294,11 +482,30 @@ func (suo *SpecificationUpdateOne) sqlSave(ctx context.Context) (_node *Specific
 			Column: specification.FieldAuthor,
 		})
 	}
+	if suo.mutation.AuthorCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: specification.FieldAuthor,
+		})
+	}
 	if value, ok := suo.mutation.Status(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeEnum,
 			Value:  value,
 			Column: specification.FieldStatus,
+		})
+	}
+	if value, ok := suo.mutation.Spec(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: specification.FieldSpec,
+		})
+	}
+	if suo.mutation.SpecCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Column: specification.FieldSpec,
 		})
 	}
 	_node = &Specification{config: suo.config}

@@ -8,6 +8,7 @@ import (
 	"log"
 
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent/migrate"
+	"github.com/google/uuid"
 
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent/specification"
 
@@ -161,7 +162,7 @@ func (c *SpecificationClient) UpdateOne(s *Specification) *SpecificationUpdateOn
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *SpecificationClient) UpdateOneID(id int) *SpecificationUpdateOne {
+func (c *SpecificationClient) UpdateOneID(id uuid.UUID) *SpecificationUpdateOne {
 	mutation := newSpecificationMutation(c.config, OpUpdateOne, withSpecificationID(id))
 	return &SpecificationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -178,7 +179,7 @@ func (c *SpecificationClient) DeleteOne(s *Specification) *SpecificationDeleteOn
 }
 
 // DeleteOneID returns a delete builder for the given id.
-func (c *SpecificationClient) DeleteOneID(id int) *SpecificationDeleteOne {
+func (c *SpecificationClient) DeleteOneID(id uuid.UUID) *SpecificationDeleteOne {
 	builder := c.Delete().Where(specification.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -193,12 +194,12 @@ func (c *SpecificationClient) Query() *SpecificationQuery {
 }
 
 // Get returns a Specification entity by its id.
-func (c *SpecificationClient) Get(ctx context.Context, id int) (*Specification, error) {
+func (c *SpecificationClient) Get(ctx context.Context, id uuid.UUID) (*Specification, error) {
 	return c.Query().Where(specification.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *SpecificationClient) GetX(ctx context.Context, id int) *Specification {
+func (c *SpecificationClient) GetX(ctx context.Context, id uuid.UUID) *Specification {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

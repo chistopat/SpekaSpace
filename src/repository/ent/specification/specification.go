@@ -2,17 +2,30 @@
 
 package specification
 
+import (
+	"fmt"
+	"time"
+
+	"github.com/google/uuid"
+)
+
 const (
 	// Label holds the string label denoting the specification type in the database.
 	Label = "specification"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
 	// FieldAuthor holds the string denoting the author field in the database.
 	FieldAuthor = "author"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldSpec holds the string denoting the spec field in the database.
+	FieldSpec = "spec"
 	// Table holds the table name of the specification in the database.
 	Table = "specifications"
 )
@@ -20,9 +33,12 @@ const (
 // Columns holds all SQL columns for specification fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
 	FieldName,
+	FieldDescription,
 	FieldAuthor,
 	FieldStatus,
+	FieldSpec,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -33,4 +49,37 @@ func ValidColumn(column string) bool {
 		}
 	}
 	return false
+}
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
+
+// Status defines the type for the "status" enum field.
+type Status string
+
+// StatusDRAFT is the default value of the Status enum.
+const DefaultStatus = StatusDRAFT
+
+// Status values.
+const (
+	StatusDRAFT Status = "DRAFT"
+	StatusNEW   Status = "NEW"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusDRAFT, StatusNEW:
+		return nil
+	default:
+		return fmt.Errorf("specification: invalid enum value for status field: %q", s)
+	}
 }

@@ -1,0 +1,17 @@
+- name: Создать спеку с минимальным набором полей
+  method: POST
+  path: /api/v1/specification
+  headers:
+    Content-Type: application/json
+  request: |
+    {
+      "name": "my_super_api",
+      "description": "all about my super api =)"
+    }
+
+  response:
+    201: |
+      {
+        "author": "chistopat",
+        "name":"my_super_spec"
+      }

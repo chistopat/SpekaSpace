@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"git.redmadrobot.com/internship/backend/lim-ext/src"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/config"
@@ -9,6 +10,9 @@ import (
 	"git.redmadrobot.com/internship/backend/lim-ext/src/pkg/logger"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent"
+	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent/migrate"
+
+	"github.com/rs/zerolog"
 	"net/http"
 	"os"
 
@@ -35,18 +39,14 @@ func run() error {
 
 	// Database
 	journal.Info().Msg(serviceConfig.DB.String())
-	err = db.Migrate(serviceConfig.DB, journal)
-	if err != nil {
-		journal.Error().Err(err).Msg("Failed migrate")
 
-		return err
-	}
 	dbDriver, err := db.GetDriver(serviceConfig.DB, journal)
 	if err != nil {
 		journal.Error().Err(err).Msg("Failed connect to DB")
 
 		return err
 	}
+
 	dbClient, err := speka_space.NewDBClient(dbDriver, journal, serviceConfig.DB.Debug)
 	if err != nil {
 		journal.Error().Err(err).Msg("Failed get ent client")
@@ -57,9 +57,11 @@ func run() error {
 	defer func(dbClient *ent.Client) {
 		err := dbClient.Close()
 		if err != nil {
-			journal.Debug().Msg("DB connection closed")
+			journal.Error().Err(err).Msg("Error while closing DB client")
 		}
 	}(dbClient)
+
+	makeMigrate(dbClient, context.Background(), journal)
 
 	repo := repository.NewRepository(dbClient, journal)
 
@@ -75,4 +77,23 @@ func run() error {
 	}
 
 	return err
+}
+
+func makeMigrate(dbClient *ent.Client, ctx context.Context, journal *zerolog.Logger) {
+	//Migrate
+	if err := dbClient.Schema.WriteTo(ctx, os.Stdout); err != nil {
+		journal.Error().Err(err).Msg("failed creating schema resources")
+	}
+	// Run migration.
+	err := dbClient.Schema.Create(
+		ctx,
+		migrate.WithDropIndex(true),
+		migrate.WithDropColumn(true),
+	)
+
+	if err != nil {
+		journal.Error().Err(err).Msg("Failed to make migration")
+
+		return
+	}
 }
