@@ -11,7 +11,6 @@ import (
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent"
 	"git.redmadrobot.com/internship/backend/lim-ext/src/repository/ent/migrate"
-
 	"github.com/rs/zerolog"
 	"net/http"
 	"os"

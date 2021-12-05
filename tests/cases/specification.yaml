@@ -14,12 +14,29 @@
   response:
     201: |
       {
-        "id":"62ca6d1b-369b-4217-b49a-f5840f6d0ed6",
-        "created_at":"2021-12-05T21:47:36.625666+03:00",
-        "updated_at":"2021-12-05T21:47:36.625667+03:00",
         "name":"fantastic_api",
         "description":"all about my super api =)",
         "status":"DRAFT"
+      }
+
+- name: On create names conflict
+  fixtures:
+    - specifications
+  method: POST
+  path: /api/v1/specification
+  headers:
+    Content-Type: application/json
+  request: |
+    {
+      "name": "my_spec",
+      "description": "yet another api"
+    }
+
+  response:
+    409: |
+      {
+        "message": "Specification name: my_spec already exists",
+        "type": "CONFLICT"
       }
 
 - name: Get existing spec by id

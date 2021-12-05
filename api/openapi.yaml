@@ -179,6 +179,7 @@ components:
           enum:
             - INVALID_REQUEST
             - NOT_FOUND
+            - CONFLICT
         message:
           type: string
           example: 'required fields not found'
