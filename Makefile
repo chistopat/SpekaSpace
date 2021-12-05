@@ -5,7 +5,7 @@ GENERATED_PATH = ./src/generated
 ENT_GENERATED_PATH = ./src/repository/ent
 APIDOC = ./api/openapi.yaml
 PID = ./.pid
-MAIN = ./cmd/main.go
+MAIN = ./src/main.go
 GOBIN = ./bin/main
 DSN2="host=${DB_HOST} port=${DB_PORT} dbname=${DB_NAME} sslmode=${DB_SSL_MODE} user=${DB_USER} password=${DB_PASSWORD}"
 DSN = postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
