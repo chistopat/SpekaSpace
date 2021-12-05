@@ -9,26 +9,24 @@ import (
 )
 
 const (
-	envPrefix                      = "LIM"
-	envSpekaSpaceServerEnvironment = "SPEKASPACE_SERVER_ENVIRONMENT"
-	envSpekaSpaceServerScheme      = "SPEKASPACE_SERVER_SCHEME"
-	envSpekaSpaceServerHost        = "SPEKASPACE_SERVER_HOST"
-	envSpekaSpaceServerPort        = "SPEKASPACE_SERVER_PORT"
+	envServerEnvironment = "SERVER_ENVIRONMENT"
+	envServerScheme      = "SERVER_SCHEME"
+	envServerHost        = "SERVER_HOST"
+	envServerPort        = "SERVER_PORT"
 
-	envSpekaSpaceDBHost       = "SPEKASPACE_DB_HOST"
-	envSpekaSpaceDBPort       = "SPEKASPACE_DB_PORT"
-	envSpekaSpaceDBName       = "SPEKASPACE_DB_NAME"
-	envSpekaSpaceDBUser       = "SPEKASPACE_DB_USER"
-	envSpekaSpaceDBPassword   = "SPEKASPACE_DB_PASSWORD"
-	envSpekaSpaceDBSslMode    = "SPEKASPACE_DB_SSL_MODE"
-	envSpekaSpaceDBSourceURL  = "SPEKASPACE_DB_SOURCE_URL"
-	envSpekaSpaceDBDriverName = "SPEKASPACE_DB_DRIVER_NAME"
-	envSpekaSpaceDBDebug      = "SPEKASPACE_DB_DEBUG"
+	envDBHost       = "DB_HOST"
+	envDBPort       = "DB_PORT"
+	envDBName       = "DB_NAME"
+	envDBUser       = "DB_USER"
+	envDBPassword   = "DB_PASSWORD"
+	envDBSslMode    = "DB_SSL_MODE"
+	envDBSourceURL  = "DB_SOURCE_URL"
+	envDBDriverName = "DB_DRIVER_NAME"
+	envDBDebug      = "DB_DEBUG"
 )
 
 func NewViper() *viper.Viper {
 	v := viper.New()
-	//v.SetEnvPrefix(envPrefix)
 	v.SetDefault(logger.EnvLogLevel, "info")
 	v.AutomaticEnv()
 
@@ -44,47 +42,45 @@ type SpekaSpaceConfig struct {
 
 func NewSpekaSpaceServiceConfig() *SpekaSpaceConfig {
 	v := NewViper()
-	v.SetDefault(envSpekaSpaceServerEnvironment, utils.DEV)
-	v.SetDefault(envSpekaSpaceServerScheme, http.Scheme)
-	v.SetDefault(envSpekaSpaceServerHost, http.Host)
-	v.SetDefault(envSpekaSpaceServerPort, http.Port)
-
-	v.SetDefault(envSpekaSpaceDBHost, db.Host)
-	v.SetDefault(envSpekaSpaceDBPort, db.Port)
-	v.SetDefault(envSpekaSpaceDBName, "lim")
-	v.SetDefault(envSpekaSpaceDBUser, "postgres")
-	v.SetDefault(envSpekaSpaceDBPassword, "")
-	v.SetDefault(envSpekaSpaceDBSslMode, db.SSLMode)
-	v.SetDefault(envSpekaSpaceDBSourceURL, "./migrations")
-	v.SetDefault(envSpekaSpaceDBDriverName, db.DriverName)
-	v.SetDefault(envSpekaSpaceDBDebug, false)
+	//v.SetDefault(envSpekaSpaceServerEnvironment, utils.DEV)
+	//v.SetDefault(envSpekaSpaceServerScheme, http.Scheme)
+	//v.SetDefault(envSpekaSpaceServerHost, http.Host)
+	//v.SetDefault(envSpekaSpaceServerPort, http.Port)
+	//
+	//v.SetDefault(envSpekaSpaceDBHost, db.Host)
+	//v.SetDefault(envSpekaSpaceDBPort, db.Port)
+	//v.SetDefault(envSpekaSpaceDBName, "lim")
+	//v.SetDefault(envSpekaSpaceDBUser, "postgres")
+	//v.SetDefault(envSpekaSpaceDBPassword, "")
+	//v.SetDefault(envSpekaSpaceDBSourceURL, "./migrations")
+	v.SetDefault(envDBDriverName, db.DriverName)
 
 	return &SpekaSpaceConfig{
 		Logger:            logger.NewLoggerConfig(v),
-		Server:            NewServerSpekaSpaceServiceConfig(v),
-		ServerEnvironment: utils.ServerEnvironment(v.GetString(envSpekaSpaceServerEnvironment)),
-		DB:                NewDBSpekaSpaceServiceConfig(v),
+		Server:            NewServerServiceConfig(v),
+		ServerEnvironment: utils.ServerEnvironment(v.GetString(envServerEnvironment)),
+		DB:                NewDBServiceConfig(v),
 	}
 }
 
-func NewServerSpekaSpaceServiceConfig(v *viper.Viper) *http.Config {
+func NewServerServiceConfig(v *viper.Viper) *http.Config {
 	return &http.Config{
-		Scheme: v.GetString(envSpekaSpaceServerScheme),
-		Host:   v.GetString(envSpekaSpaceServerHost),
-		Port:   v.GetString(envSpekaSpaceServerPort),
+		Scheme: v.GetString(envServerScheme),
+		Host:   v.GetString(envServerHost),
+		Port:   v.GetString(envServerPort),
 	}
 }
 
-func NewDBSpekaSpaceServiceConfig(v *viper.Viper) *db.Config {
+func NewDBServiceConfig(v *viper.Viper) *db.Config {
 	return &db.Config{
-		Host:         v.GetString(envSpekaSpaceDBHost),
-		Port:         v.GetString(envSpekaSpaceDBPort),
-		DatabaseName: v.GetString(envSpekaSpaceDBName),
-		User:         v.GetString(envSpekaSpaceDBUser),
-		Password:     v.GetString(envSpekaSpaceDBPassword),
-		SslMode:      v.GetString(envSpekaSpaceDBSslMode),
-		SourceURL:    v.GetString(envSpekaSpaceDBSourceURL),
-		DriverName:   v.GetString(envSpekaSpaceDBDriverName),
-		Debug:        v.GetBool(envSpekaSpaceDBDebug),
+		Host:         v.GetString(envDBHost),
+		Port:         v.GetString(envDBPort),
+		DatabaseName: v.GetString(envDBName),
+		User:         v.GetString(envDBUser),
+		Password:     v.GetString(envDBPassword),
+		SslMode:      v.GetString(envDBSslMode),
+		SourceURL:    v.GetString(envDBSourceURL),
+		DriverName:   v.GetString(envDBDriverName),
+		Debug:        v.GetBool(envDBDebug),
 	}
 }

@@ -1,3 +1,5 @@
+include .env
+
 CODEGEN = github.com/deepmap/oapi-codegen/cmd/oapi-codegen
 GENERATED_PATH = ./src/generated
 ENT_GENERATED_PATH = ./src/repository/ent
@@ -41,3 +43,10 @@ restart: stop build start
 
 test: build start _test stop
 
+set:
+	set -a && source .env && set +a
+
+rebuild: stop set gen build start
+
+export:
+	export $(grep -v '^#' .env | xargs -0)
