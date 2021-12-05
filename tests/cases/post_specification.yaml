@@ -1,18 +1,18 @@
 - name: Создать спеку с минимальным набором полей
   fixtures:
-    - spec1
+    - specifications
   method: POST
   path: /api/v1/specification
   headers:
     Content-Type: application/json
   request: |
     {
-      "name": "my_super_api",
+      "name": "my_spec",
       "description": "all about my super api =)"
     }
 
   response:
-    201: |
+    400: |
       {
         "author": "chistopat",
         "name":"my_super_spec"

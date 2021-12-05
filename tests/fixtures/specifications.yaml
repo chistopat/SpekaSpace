@@ -1,8 +1,9 @@
 tables:
-  posts:
+  specifications:
     - $name: spec1
       description: foo bar buzz
       name: my_spec
       author: Jane Dow
       created_at: 2021-01-01 12:30:12
       updated_at: 2021-01-01 12:30:12
+      id: bbbad0a1-1afd-4986-8415-9981a8d10dcc

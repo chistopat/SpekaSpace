@@ -7,6 +7,7 @@ APIDOC = ./api/openapi.yaml
 PID = ./.pid
 MAIN = ./cmd/main.go
 GOBIN = ./bin/main
+DSN2="host=${DB_HOST} port=${DB_PORT} dbname=${DB_NAME} sslmode=${DB_SSL_MODE} user=${DB_USER} password=${DB_PASSWORD}"
 DSN = postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
 
 .PHONY: clean
@@ -24,10 +25,10 @@ generate:
 
 gen: clean generate
 
-GONKEY_DB_PARAMS = -env-file .env -db_dsn $(DSN) -fixtures ./tests/fixtures -db-type mysql
+GONKEY_DB_PARAMS = -env-file .env -db_dsn $(DSN2) -fixtures ./tests/fixtures
 
 _test:
-	go run github.com/lamoda/gonkey -v -debug -host ${SERVER_HOST}:${SERVER_PORT} -tests tests/cases $(GONKEY_DB_PARAMS)
+	go run gonkey/main.go -v -debug -host ${SERVER_HOST}:${SERVER_PORT} -tests tests/cases $(GONKEY_DB_PARAMS)
 
 run:
 	go run $(MAIN)
