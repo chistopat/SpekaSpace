@@ -1,0 +1,29 @@
+version: '3.8'
+
+networks:
+  speka-network:
+    driver: bridge
+    attachable: true
+
+services:
+  speka-db:
+    container_name: speka-db
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${SPEKASPACE_DB_NAME}
+      POSTGRES_USER: ${SPEKASPACE_DB_USER}
+      POSTGRES_PASSWORD: ${SPEKASPACE_DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - ./.enviroment/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - published: ${SPEKASPACE_DB_PORT}
+        target: 5432
+    networks:
+      - speka-network
+
+volumes:
+  dbdata:
+    driver: local

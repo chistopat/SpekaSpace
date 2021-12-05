@@ -28,7 +28,7 @@ const (
 
 func NewViper() *viper.Viper {
 	v := viper.New()
-	v.SetEnvPrefix(envPrefix)
+	//v.SetEnvPrefix(envPrefix)
 	v.SetDefault(logger.EnvLogLevel, "info")
 	v.AutomaticEnv()
 
@@ -63,7 +63,7 @@ func NewSpekaSpaceServiceConfig() *SpekaSpaceConfig {
 		Logger:            logger.NewLoggerConfig(v),
 		Server:            NewServerSpekaSpaceServiceConfig(v),
 		ServerEnvironment: utils.ServerEnvironment(v.GetString(envSpekaSpaceServerEnvironment)),
-		DB:                NewDBMarketPlaceServiceConfig(v),
+		DB:                NewDBSpekaSpaceServiceConfig(v),
 	}
 }
 
@@ -75,7 +75,7 @@ func NewServerSpekaSpaceServiceConfig(v *viper.Viper) *http.Config {
 	}
 }
 
-func NewDBMarketPlaceServiceConfig(v *viper.Viper) *db.Config {
+func NewDBSpekaSpaceServiceConfig(v *viper.Viper) *db.Config {
 	return &db.Config{
 		Host:         v.GetString(envSpekaSpaceDBHost),
 		Port:         v.GetString(envSpekaSpaceDBPort),
