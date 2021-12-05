@@ -7,14 +7,20 @@
     Content-Type: application/json
   request: |
     {
-      "name": "my_spec",
+      "name": "fantastic_api",
       "description": "all about my super api =)"
     }
 
   response:
-    400: |
-      ent: constraint failed: insert node to table "specifications": pq: duplicate key value violates unique constraint "specifications_name_key"
-
+    201: |
+      {
+        "id":"62ca6d1b-369b-4217-b49a-f5840f6d0ed6",
+        "created_at":"2021-12-05T21:47:36.625666+03:00",
+        "updated_at":"2021-12-05T21:47:36.625667+03:00",
+        "name":"fantastic_api",
+        "description":"all about my super api =)",
+        "status":"DRAFT"
+      }
 
 - name: Get existing spec by id
   fixtures:
@@ -34,6 +40,24 @@
         "description":"foo bar buzz",
         "author":"Jane Dow",
         "status":"DRAFT"
+      }
+
+  comparisonParams:
+    ignoreValues: false
+    ignoreArraysOrdering: false
+    disallowExtraFields: false
+
+- name: Get not existing spec by id
+  method: GET
+  path: /api/v1/specification/ba4aef43-adf7-4130-97ee-6de19ee29d1b
+  headers:
+    Content-Type: application/json
+
+  response:
+    404: |
+      {
+        "message": "Specification with id: ba4aef43-adf7-4130-97ee-6de19ee29d1b, not found",
+        "type": "NOT_FOUND"
       }
 
   comparisonParams:
