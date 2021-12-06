@@ -50,7 +50,10 @@ paths:
                 $ref: "#/components/schemas/Specifications"
         400:
           $ref: "#/components/responses/ErrorResponse"
-
+      security:
+        - petstore_auth:
+            - write:pets
+            - read:pets
   /specification:
     post:
       tags:
@@ -183,3 +186,16 @@ components:
         message:
           type: string
           example: 'required fields not found'
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: http://petstore.swagger.io/oauth/dialog
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
