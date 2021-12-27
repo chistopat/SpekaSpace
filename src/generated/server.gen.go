@@ -13,15 +13,18 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Create new specification
-	// (POST /specification)
-	CreateSpecification(w http.ResponseWriter, r *http.Request)
-	// Get specification by uuid
-	// (GET /specification/{uuid})
-	ReadSpecification(w http.ResponseWriter, r *http.Request, uuid string)
-	// Retrieve scpecifications
-	// (GET /specifications)
-	RetrieveSpecifications(w http.ResponseWriter, r *http.Request, params RetrieveSpecificationsParams)
+	// Оставить отзыв
+	// (POST /api/v1/feedback)
+	CreateFeedback(w http.ResponseWriter, r *http.Request)
+	// сделать запрос на отзыв
+	// (POST /api/v1/feedback/ask)
+	CreateFeedbackAsk(w http.ResponseWriter, r *http.Request)
+	// Посмотреть отзыв по id
+	// (GET /api/v1/feedback/{uuid})
+	ReadFeedback(w http.ResponseWriter, r *http.Request, uuid string)
+	// Получить список отзывов
+	// (GET /api/v1/feedbacks)
+	ReadFeedbacks(w http.ResponseWriter, r *http.Request, params ReadFeedbacksParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -32,12 +35,12 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
 
-// CreateSpecification operation middleware
-func (siw *ServerInterfaceWrapper) CreateSpecification(w http.ResponseWriter, r *http.Request) {
+// CreateFeedback operation middleware
+func (siw *ServerInterfaceWrapper) CreateFeedback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateSpecification(w, r)
+		siw.Handler.CreateFeedback(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -47,8 +50,23 @@ func (siw *ServerInterfaceWrapper) CreateSpecification(w http.ResponseWriter, r 
 	handler(w, r.WithContext(ctx))
 }
 
-// ReadSpecification operation middleware
-func (siw *ServerInterfaceWrapper) ReadSpecification(w http.ResponseWriter, r *http.Request) {
+// CreateFeedbackAsk operation middleware
+func (siw *ServerInterfaceWrapper) CreateFeedbackAsk(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateFeedbackAsk(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ReadFeedback operation middleware
+func (siw *ServerInterfaceWrapper) ReadFeedback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -63,7 +81,7 @@ func (siw *ServerInterfaceWrapper) ReadSpecification(w http.ResponseWriter, r *h
 	}
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ReadSpecification(w, r, uuid)
+		siw.Handler.ReadFeedback(w, r, uuid)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -73,14 +91,14 @@ func (siw *ServerInterfaceWrapper) ReadSpecification(w http.ResponseWriter, r *h
 	handler(w, r.WithContext(ctx))
 }
 
-// RetrieveSpecifications operation middleware
-func (siw *ServerInterfaceWrapper) RetrieveSpecifications(w http.ResponseWriter, r *http.Request) {
+// ReadFeedbacks operation middleware
+func (siw *ServerInterfaceWrapper) ReadFeedbacks(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params RetrieveSpecificationsParams
+	var params ReadFeedbacksParams
 
 	// ------------- Optional query parameter "status" -------------
 	if paramValue := r.URL.Query().Get("status"); paramValue != "" {
@@ -93,19 +111,19 @@ func (siw *ServerInterfaceWrapper) RetrieveSpecifications(w http.ResponseWriter,
 		return
 	}
 
-	// ------------- Optional query parameter "author" -------------
-	if paramValue := r.URL.Query().Get("author"); paramValue != "" {
+	// ------------- Optional query parameter "from_author" -------------
+	if paramValue := r.URL.Query().Get("from_author"); paramValue != "" {
 
 	}
 
-	err = runtime.BindQueryParameter("form", true, false, "author", r.URL.Query(), &params.Author)
+	err = runtime.BindQueryParameter("form", true, false, "from_author", r.URL.Query(), &params.FromAuthor)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Invalid format for parameter author: %s", err), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Invalid format for parameter from_author: %s", err), http.StatusBadRequest)
 		return
 	}
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.RetrieveSpecifications(w, r, params)
+		siw.Handler.ReadFeedbacks(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -153,13 +171,16 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/specification", wrapper.CreateSpecification)
+		r.Post(options.BaseURL+"/api/v1/feedback", wrapper.CreateFeedback)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/specification/{uuid}", wrapper.ReadSpecification)
+		r.Post(options.BaseURL+"/api/v1/feedback/ask", wrapper.CreateFeedbackAsk)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/specifications", wrapper.RetrieveSpecifications)
+		r.Get(options.BaseURL+"/api/v1/feedback/{uuid}", wrapper.ReadFeedback)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/feedbacks", wrapper.ReadFeedbacks)
 	})
 
 	return r

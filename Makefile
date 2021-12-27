@@ -21,6 +21,7 @@ generate:
 	go run $(CODEGEN) -package generated -generate types $(APIDOC) > $(GENERATED_PATH)/types.gen.go
 	go run $(CODEGEN) -package generated -generate chi-server $(APIDOC) > $(GENERATED_PATH)/server.gen.go
 	go run $(CODEGEN) -package generated -generate spec $(APIDOC) > $(GENERATED_PATH)/spec.gen.go
+
 	go run -mod=mod entgo.io/ent/cmd/ent generate ./src/repository/schema --target=$(ENT_GENERATED_PATH)
 
 gen: clean generate

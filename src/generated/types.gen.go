@@ -18,21 +18,13 @@ const (
 
 // Defines values for StatusField.
 const (
-	StatusFieldAPPROUVED StatusField = "APPROUVED"
+	StatusFieldCANCELED StatusField = "CANCELED"
 
-	StatusFieldARCHIVED StatusField = "ARCHIVED"
-
-	StatusFieldCHANGESREQUESTED StatusField = "CHANGES_REQUESTED"
-
-	StatusFieldDRAFT StatusField = "DRAFT"
-
-	StatusFieldNEEDREVIEW StatusField = "NEED_REVIEW"
+	StatusFieldDONE StatusField = "DONE"
 
 	StatusFieldNEW StatusField = "NEW"
 
-	StatusFieldONREVIEW StatusField = "ON_REVIEW"
-
-	StatusFieldREJECTED StatusField = "REJECTED"
+	StatusFieldPENDING StatusField = "PENDING"
 )
 
 // Error defines model for Error.
@@ -45,57 +37,81 @@ type Error struct {
 type ErrorType string
 
 // full body
-type Specification struct {
+type Feedback struct {
 
-	// login of creator
-	Author *string `json:"author,omitempty"`
+	// о ком написан отзыв, логин
+	AboutRecipient string `json:"about_recipient"`
 
-	// plain text specification body json
-	Body      *string    `json:"body,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
+	// plain text feedback body json
+	Body      *string   `json:"body,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
 
-	// comment
-	Description *string `json:"description,omitempty"`
+	// автор отзыва, логин
+	FromAuthor string `json:"from_author"`
 
-	// unique specification name, used like id
-	Name *string `json:"name,omitempty"`
+	// увидит ли получатель автора
+	IsAnonimous bool `json:"is_anonimous"`
 
-	// status uses for collaboration processes
-	Status    *StatusField `json:"status,omitempty"`
-	UpdatedAt *time.Time   `json:"updated_at,omitempty"`
+	// кто запроил отзыв, логин
+	Requester string `json:"requester"`
+
+	// статус фидбека используется для настройки воркфлоу и жизненного цикла отзыва
+	Status    StatusField `json:"status"`
+	UpdatedAt time.Time   `json:"updated_at"`
+	Uuid      string      `json:"uuid"`
 }
 
-// fields set for create specification
-type SpecificationCreateBody struct {
+// FeedbackCreateAskBody defines model for FeedbackCreateAskBody.
+type FeedbackCreateAskBody struct {
 
-	// comment
-	Description *string `json:"description,omitempty"`
+	// на кого запрашиваем
+	AboutRecipient string   `json:"about_recipient"`
+	FromAuthors    []string `json:"from_authors"`
 
-	// unique specification name, used like id
-	Name *string `json:"name,omitempty"`
+	// от кого (self)
+	Requester string `json:"requester"`
 }
 
-// Specifications defines model for Specifications.
-type Specifications []Specification
+// FeedbackCreateFullBody defines model for FeedbackCreateFullBody.
+type FeedbackCreateFullBody struct {
 
-// status uses for collaboration processes
+	// на кого запрашиваем
+	AboutRecipient string `json:"about_recipient"`
+
+	// plain text feedback body json
+	Body string `json:"body"`
+
+	// от кого (self)
+	FromAuthor string `json:"from_author"`
+}
+
+// Feedbacks defines model for Feedbacks.
+type Feedbacks []Feedback
+
+// статус фидбека используется для настройки воркфлоу и жизненного цикла отзыва
 type StatusField string
 
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse Error
 
-// CreateSpecificationJSONBody defines parameters for CreateSpecification.
-type CreateSpecificationJSONBody SpecificationCreateBody
+// CreateFeedbackJSONBody defines parameters for CreateFeedback.
+type CreateFeedbackJSONBody FeedbackCreateFullBody
 
-// RetrieveSpecificationsParams defines parameters for RetrieveSpecifications.
-type RetrieveSpecificationsParams struct {
+// CreateFeedbackAskJSONBody defines parameters for CreateFeedbackAsk.
+type CreateFeedbackAskJSONBody FeedbackCreateAskBody
 
-	// filter by status
-	Status *string `json:"status,omitempty"`
+// ReadFeedbacksParams defines parameters for ReadFeedbacks.
+type ReadFeedbacksParams struct {
 
-	// filter by author
-	Author *string `json:"author,omitempty"`
+	// по какому статус селектить
+	Status *StatusField `json:"status,omitempty"`
+
+	// логин автора отзыва
+	FromAuthor *string `json:"from_author,omitempty"`
 }
 
-// CreateSpecificationJSONRequestBody defines body for CreateSpecification for application/json ContentType.
-type CreateSpecificationJSONRequestBody CreateSpecificationJSONBody
+// CreateFeedbackJSONRequestBody defines body for CreateFeedback for application/json ContentType.
+type CreateFeedbackJSONRequestBody CreateFeedbackJSONBody
+
+// CreateFeedbackAskJSONRequestBody defines body for CreateFeedbackAsk for application/json ContentType.
+type CreateFeedbackAskJSONRequestBody CreateFeedbackAskJSONBody

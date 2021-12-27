@@ -1,105 +1,113 @@
 openapi: 3.0.3
 info:
-  title: спека.space
-  description: Сервис для хранения, проектирования и обсуждения OpenApi спецификаций
+  title: feedya
+  description: Feedback Service Implementation
   version: 1.0.0
   contact:
     name: Yegor Chisyakov
     email: chistopat@gmail.com
-
 servers:
-  - url: 'http://localhost:8042'
+  - url: http://localhost:8042
     description: local
-  - url: 'http://test'
+  - url: http://test.feemple
     description: test
-  - url: 'http://prod'
-    description: prod
-
+  - url: http://prod.feemple
 tags:
-  - name: Workspaces
-  - name: Specifications
-  - name: Comments
-  - name: Users
-
+  - name: Feedback
+    description: all about feedback
 paths:
-  /specifications:
-    get:
-      tags:
-        - Specifications
-      summary: Retrieve scpecifications
-      operationId: RetrieveSpecifications
-      parameters:
-        - name: status
-          in: query
-          description: 'filter by status'
-          required: false
-          schema:
-            type: string
-        - name: author
-          in: query
-          description: 'filter by author'
-          required: false
-          schema:
-            type: string
-      responses:
-        200:
-          description: Resource created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Specifications"
-        400:
-          $ref: "#/components/responses/ErrorResponse"
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /specification:
+  /api/v1/feedback:
     post:
       tags:
-        - Specifications
-      summary: Create new specification
-      operationId: CreateSpecification
+        - Feedback
+      summary: Оставить отзыв
+      operationId: CreateFeedback
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SpecificationCreateBody"
+              $ref: '#/components/schemas/FeedbackCreateFullBody'
       responses:
-        201:
+        '201':
           description: Resource created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Specification"
-        400:
-          $ref: "#/components/responses/ErrorResponse"
-
-  /specification/{uuid}:
+                $ref: '#/components/schemas/Feedback'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/v1/feedback/ask:
+    post:
+      tags:
+        - Feedback
+      summary: сделать запрос на отзыв
+      operationId: CreateFeedbackAsk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackCreateAskBody'
+      responses:
+        '201':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feedbacks'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/v1/feedback/{uuid}:
     get:
       tags:
-        - Specifications
-      summary: Get specification by uuid
-      operationId: ReadSpecification
+        - Feedback
+      summary: Посмотреть отзыв по id
+      operationId: ReadFeedback
       parameters:
         - name: uuid
           in: path
-          description: 'The specification id that needs to be fetched.'
+          description: по какому айдишнику селектить
           required: true
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: Ok
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Specification"
-        404:
-          $ref: "#/components/responses/ErrorResponse"
-
-
+                $ref: '#/components/schemas/Feedback'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/v1/feedbacks:
+    get:
+      tags:
+        - Feedback
+      summary: Получить список отзывов
+      operationId: ReadFeedbacks
+      parameters:
+        - name: status
+          in: query
+          description: по какому статус селектить
+          required: false
+          schema:
+            $ref: '#/components/schemas/StatusField'
+        - name: from_author
+          in: query
+          description: логин автора отзыва
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feedback'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
 components:
   responses:
     ErrorResponse:
@@ -109,71 +117,6 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   schemas:
-    SpecificationCreateBody:
-      description: fields set for create specification
-      type: object
-      properties:
-        name:
-          type: string
-          description: 'unique specification name, used like id'
-          example: my_super_api
-        description:
-          type: string
-          description: comment
-          example: 'all about my super api'
-
-
-    Specification:
-      description: full body
-      type: object
-
-      properties:
-        created_at:
-          type: string
-          format: date-time
-          example: '2021-10-11T20:10:01Z'
-        updated_at:
-          type: string
-          format: date-time
-          example: '2021-10-11T20:10:01Z'
-        status:
-          $ref: '#/components/schemas/StatusField'
-        author:
-          type: string
-          description: login of creator
-          example: chistopat
-        body:
-          type: string
-          description: plain text specification body json
-        name:
-          type: string
-          description: 'unique specification name, used like id'
-          example: my_super_api
-        description:
-          type: string
-          description: comment
-          example: 'all about my super api'
-
-    StatusField:
-      type: string
-      enum:
-        - DRAFT
-        - NEW
-        - NEED_REVIEW
-        - ON_REVIEW
-        - CHANGES_REQUESTED
-        - APPROUVED
-        - REJECTED
-        - ARCHIVED
-      description: status uses for collaboration processes
-      default: DRAFT
-      example: NEW
-
-    Specifications:
-      type: array
-      items:
-        $ref: "#/components/schemas/Specification"
-
     Error:
       type: object
       properties:
@@ -185,17 +128,109 @@ components:
             - CONFLICT
         message:
           type: string
-          example: 'required fields not found'
-  securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: http://petstore.swagger.io/oauth/dialog
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
+          example: required fields not found
+    FeedbackCreateFullBody:
+      type: object
+      required:
+        - from_author
+        - about_recipient
+        - body
+      properties:
+        about_recipient:
+          type: string
+          description: на кого запрашиваем
+          example: rick
+        from_author:
+          description: от кого (self)
+          type: string
+          example: rick
+        body:
+          type: string
+          description: plain text feedback body json
+          example: '{"question": "answer", "question2": "answer"}'
+    FeedbackCreateAskBody:
+      type: object
+      required:
+        - from_authors
+        - about_recipient
+        - requester
+      properties:
+        from_authors:
+          type: array
+          items:
+            type: string
+            description: логины людей у которых запрашиваем отзывы, не менее одного
+            example:
+              - jerry
+              - morty
+              - summer
+        about_recipient:
+          type: string
+          description: на кого запрашиваем
+          example: rick
+        requester:
+          description: от кого (self)
+          type: string
+          example: rick
+    Feedbacks:
+      type: array
+      items:
+        $ref: '#/components/schemas/Feedback'
+    Feedback:
+      description: full body
+      type: object
+      required:
+        - uuid
+        - created_at
+        - updated_at
+        - status
+        - from_author
+        - about_recipient
+        - requester
+        - is_anonimous
+      properties:
+        uuid:
+          type: string
+          example: 1e3a5b53-9cd2-4805-87b9-5f8568f73129
+        created_at:
+          type: string
+          format: date-time
+          example: '2021-10-11T20:10:01Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2021-10-11T20:10:01Z'
+        status:
+          $ref: '#/components/schemas/StatusField'
+        body:
+          type: string
+          description: plain text feedback body json
+          example: '{"question": "answer", "question2": "answer"}'
+        from_author:
+          type: string
+          description: автор отзыва, логин
+          example: rick
+        requester:
+          type: string
+          description: кто запроил отзыв, логин
+          example: morty
+        about_recipient:
+          type: string
+          description: о ком написан отзыв, логин
+          example: jerry
+        is_anonimous:
+          type: boolean
+          description: увидит ли получатель автора
+          example: true
+    StatusField:
+      type: string
+      enum:
+        - NEW
+        - PENDING
+        - CANCELED
+        - DONE
+      description: >-
+        статус фидбека используется для настройки воркфлоу и жизненного цикла
+        отзыва
+      default: NEW
+      example: NEW
